@@ -1,0 +1,1074 @@
+/* ============================================
+   配色パラメータ設定（カスタマイズ可能）
+   ============================================ */
+:root {
+    --text-color: #4a4a4a;
+    --background-color: #FFFFFF;
+    --accent-color: #1d7484;
+    --accent-hover-color: #982c61;
+    --accent-visited-color: #144f5a;
+    --border-color: #f1f1f1;
+    --code-background: #f1f1f1;
+    --blockquote-border: #1d7484;
+}
+
+/* ============================================
+   基本設定（書籍品質のタイポグラフィー）
+   ============================================ */
+html {
+    /* レスポンシブなベースフォントサイズ設定 */
+    font-size: clamp(15px, 3vw, 16px);
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "HG Mincho E", "MS PMincho", "MS Mincho", Georgia, "Times New Roman", Times, serif;
+    /* 文字レンダリングの最適化 */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+body {
+    /* remベースのフォントサイズ */
+    font-size: clamp(1rem, 2.5vw, 1rem);
+    line-height: 1.75;
+    /* 黄金比に近い行間 */
+    max-width: 38em;
+    /* 理想的な読み幅（45-75文字）*/
+    margin: auto;
+    color: var(--text-color);
+    background-color: var(--background-color);
+    padding: 0;
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "HG Mincho E", "MS PMincho", "MS Mincho", Georgia, "Times New Roman", Times, serif;
+    /* 書籍的な文字組み設定 */
+    font-feature-settings: "palt" 1, "pkna" 1;
+    /* プロポーショナル文字詰め */
+    font-variant-numeric: proportional-nums;
+    /* 和欧混植の改善 */
+    font-kerning: auto;
+    /* 垂直リズムの基準設定 */
+    --baseline-unit: 1.75rem;
+    /* 基準となる垂直リズム単位 */
+}
+
+/* ============================================
+   Bootstrapライクなブレークポイント補完
+   （clamp()で対応しきれない細かい調整用）
+   ============================================ */
+/* Extra small devices (phones, less than 576px) */
+@media (max-width: 575.98px) {
+    body {
+        max-width: 100%;
+        padding: 0 0.75rem;
+    }
+
+    h1 {
+        line-height: 1.2;
+    }
+
+    p {
+        margin-left: 0.5rem;
+        margin-right: 0.5rem;
+    }
+}
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 576px) and (max-width: 767.98px) {
+    body {
+        max-width: 540px;
+    }
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) and (max-width: 991.98px) {
+    body {
+        max-width: 720px;
+    }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+    body {
+        max-width: 960px;
+    }
+}
+
+/* Extra large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) {
+    body {
+        max-width: 1100px;
+    }
+}
+
+/* ============================================
+   見出し設定（書籍的階層デザイン）
+   ============================================ */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    line-height: 1.2;
+    /* 見出しは詰めた行間 */
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "HG Mincho E", "MS PMincho", "MS Mincho", Georgia, "Times New Roman", Times, serif;
+    font-weight: 700;
+    /* 垂直リズムに基づいた余白設定 */
+    margin-top: calc(var(--baseline-unit) * 1.5);
+    margin-bottom: var(--baseline-unit);
+    /* 文字組み最適化 */
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    -ms-word-break: break-all;
+    word-break: break-word;
+    /* 文字詰め設定 */
+    font-feature-settings: "palt" 1, "pkna" 1;
+    /* 字間調整 */
+    letter-spacing: 0.02em;
+}
+
+h1 {
+    /* レスポンシブフォントサイズ（書籍的な大きさ） */
+    font-size: clamp(2rem, 6vw, 2.5rem);
+    text-align: center;
+    margin: calc(var(--baseline-unit) * 4) 0 calc(var(--baseline-unit) * 2) 0;
+    padding: clamp(0.5rem, 3vw, 2rem) 0;
+    box-sizing: border-box;
+    /* 特別な文字組み */
+    letter-spacing: 0.05em;
+    font-weight: 600;
+}
+
+h2 {
+    /* 章見出しとしての品格 */
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    page-break-before: always;
+    margin-top: calc(var(--baseline-unit) * 2);
+    margin-bottom: var(--baseline-unit);
+    /* 章見出しの装飾的字間 */
+    letter-spacing: 0.03em;
+    font-weight: 600;
+}
+
+h3 {
+    /* 節見出し */
+    font-size: clamp(1.25rem, 3.5vw, 1.75rem);
+    letter-spacing: 0.025em;
+    font-weight: 500;
+}
+
+h4 {
+    /* 小見出し */
+    font-size: clamp(1.125rem, 3vw, 1.5rem);
+    letter-spacing: 0.02em;
+    font-weight: 500;
+}
+
+h5 {
+    /* 項目見出し */
+    font-size: clamp(1rem, 2.5vw, 1.25rem);
+    letter-spacing: 0.015em;
+    font-weight: 400;
+}
+
+h6 {
+    /* 細項目見出し */
+    font-size: clamp(0.875rem, 2vw, 1rem);
+    letter-spacing: 0.01em;
+    font-weight: 400;
+}
+
+/* タイトルページの後の最初の要素を新しいページとして開始 */
+h1+p+p {
+    margin-top: 100vh;
+    position: relative;
+    z-index: 3;
+    margin-bottom: 5rem;
+    padding-left: 0rem;
+    padding-right: 0rem;
+    background-color: var(--background-color);
+}
+
+/* ============================================
+   段落・テキスト要素（書籍品質の文字組み）
+   ============================================ */
+p {
+    /* 垂直リズムに基づいた余白 */
+    margin-top: 0;
+    margin-bottom: var(--baseline-unit);
+    /* 書籍的な左右余白 */
+    margin-right: clamp(0.5rem, 2vw, 1rem);
+    margin-left: clamp(0.5rem, 2vw, 1rem);
+    padding-left: 0;
+    padding-right: 0;
+
+    /* 書籍品質の文字組み設定 */
+    text-align: justify;
+    /* 両端揃え */
+    text-justify: inter-ideograph;
+    /* 日本語に最適化された文字間調整 */
+    line-height: 1.75;
+    /* 読みやすい行間 */
+    font-size: clamp(1rem, 2.5vw, 1rem);
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "HG Mincho E", "MS PMincho", "MS Mincho", Georgia, "Times New Roman", Times, serif;
+
+    /* 高品質な文字レンダリング */
+    font-feature-settings: "palt" 1, "pkna" 1;
+    /* プロポーショナル文字詰め */
+    font-kerning: auto;
+    /* 文字ペアカーニング */
+
+    /* 和欧混植の改善 */
+    letter-spacing: 0.025em;
+    /* 微細な字間調整 */
+    word-spacing: 0.1em;
+    /* 単語間調整 */
+
+    /* ハイフネーション（対応ブラウザのみ） */
+    hyphens: auto;
+    -webkit-hyphens: auto;
+    -ms-hyphens: auto;
+
+    /* 段落間の視覚的分離 */
+    text-indent: 0;
+    /* 書籍的には1em程度だが、Web表示では0が読みやすい */
+}
+
+/* 段落の最初の文字を少し大きく（書籍的装飾、オプション） */
+p:first-of-type:first-letter {
+    font-size: 1.2em;
+    font-weight: 600;
+    line-height: 1;
+}
+
+/* 数字のタイポグラフィー改善 */
+.numbers,
+time,
+data {
+    font-variant-numeric: proportional-nums;
+    font-feature-settings: "tnum" 0, "pnum" 1;
+}
+
+small,
+sub,
+sup {
+    font-size: 75%;
+}
+
+/* ============================================
+   強調表示の書籍的タイポグラフィー
+   ============================================ */
+strong,
+b {
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    /* 太字の文字詰め調整 */
+}
+
+em,
+i {
+    font-style: italic;
+    letter-spacing: 0.02em;
+    /* 斜体の字間調整 */
+}
+
+/* 下線の美的改善 */
+u {
+    text-decoration: underline;
+    text-decoration-color: var(--accent-color);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+}
+
+/* 取り消し線の改善 */
+s,
+del {
+    text-decoration: line-through;
+    text-decoration-color: rgba(74, 74, 74, 0.6);
+    text-decoration-thickness: 1px;
+}
+
+/* マーク（ハイライト）の改善 */
+mark {
+    background-color: rgba(255, 235, 59, 0.3);
+    padding: 0.1em 0.2em;
+    border-radius: 2px;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid var(--accent-color);
+    margin: calc(var(--baseline-unit) * 1.5) 0;
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ============================================
+   リンク設定
+   ============================================ */
+a {
+    text-decoration: none;
+    color: var(--accent-color);
+    /* 長いURLの改行対応 */
+    word-break: break-all;
+    overflow-wrap: break-word;
+}
+
+a:visited {
+    color: var(--accent-visited-color);
+}
+
+a:hover {
+    color: var(--accent-hover-color);
+    border-bottom: 2px solid var(--text-color);
+}
+
+/* ============================================
+   脚注設定
+   ============================================ */
+.footnotes {
+    margin-top: 2rem;
+    margin-left: clamp(0.5rem, 2vw, 1rem);
+    margin-right: clamp(0.5rem, 2vw, 1rem);
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.footnote {
+    margin-bottom: 0.8rem;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: var(--text-color);
+}
+
+.footnote sup {
+    font-weight: bold;
+    margin-right: 0.5rem;
+}
+
+.footnote-ref {
+    text-decoration: none;
+    color: var(--accent-color);
+    font-weight: normal;
+}
+
+.footnote-ref:hover {
+    color: var(--accent-hover-color);
+    border-bottom: none;
+}
+
+/* ============================================
+   リスト設定（書籍的階層表現）
+   ============================================ */
+ul,
+ol {
+    margin-left: clamp(0.5rem, 2vw, 1rem);
+    padding-left: clamp(1rem, 3vw, 1.4em);
+    padding-right: 0;
+    margin-top: 0;
+    margin-bottom: var(--baseline-unit);
+
+    /* 本文と統一した文字組み */
+    font-size: clamp(1rem, 2.5vw, 1rem);
+    line-height: 1.75;
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "HG Mincho E", "MS PMincho", "MS Mincho", Georgia, "Times New Roman", Times, serif;
+
+    /* 文字組み設定を継承 */
+    font-feature-settings: "palt" 1, "pkna" 1;
+    letter-spacing: 0.025em;
+}
+
+li {
+    margin-bottom: calc(var(--baseline-unit) * 0.5);
+    font-family: inherit;
+
+    /* リスト項目内での改行処理 */
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+
+/* ネストしたリストの調整 */
+li ul,
+li ol {
+    margin-top: calc(var(--baseline-unit) * 0.25);
+    margin-bottom: calc(var(--baseline-unit) * 0.25);
+    font-size: inherit;
+    /* 親のサイズを維持 */
+}
+
+
+
+/* ============================================
+   引用文設定（書籍的品格）
+   ============================================ */
+blockquote {
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: var(--baseline-unit);
+    margin-bottom: var(--baseline-unit);
+
+    padding: calc(var(--baseline-unit) * 0.75) 1.5em;
+    border-left: 4px solid var(--blockquote-border);
+    background-color: var(--border-color);
+
+    /* 引用文の文字組み */
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "HG Mincho E", "MS PMincho", "MS Mincho", Georgia, "Times New Roman", Times, serif;
+    font-style: italic;
+    /* 欧文部分の斜体化 */
+    line-height: 1.6;
+    /* 少し詰めた行間 */
+    font-size: 0.95em;
+    /* 本文より少し小さく */
+    letter-spacing: 0.02em;
+
+    /* 引用文内での改行処理 */
+    text-align: left;
+    /* 引用文は左揃え */
+    overflow-wrap: break-word;
+}
+
+blockquote p {
+    margin-bottom: calc(var(--baseline-unit) * 0.5);
+}
+
+blockquote p:last-child {
+    margin-bottom: 0;
+}
+
+/* ============================================
+   画像・動画設定（書籍的レイアウト）
+   ============================================ */
+img,
+video {
+    height: auto;
+    max-width: 100%;
+    margin-top: 0;
+    margin-bottom: var(--baseline-unit);
+
+    /* 画像の品質向上 */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+/* 図表（Figure）の書籍的スタイリング */
+figure {
+    margin: calc(var(--baseline-unit) * 1.5) 0;
+    text-align: center;
+
+    /* 図表全体の配置 */
+    display: block;
+    clear: both;
+}
+
+figure img {
+    margin-bottom: calc(var(--baseline-unit) * 0.5);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+}
+
+figcaption {
+    font-size: 0.875em;
+    line-height: 1.4;
+    color: rgba(74, 74, 74, 0.8);
+    font-style: italic;
+
+    /* キャプションの文字組み */
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "HG Mincho E", "MS PMincho", "MS Mincho", Georgia, "Times New Roman", Times, serif;
+    letter-spacing: 0.02em;
+    text-align: center;
+
+    /* キャプションの余白 */
+    margin-top: calc(var(--baseline-unit) * 0.25);
+    padding: 0 1rem;
+}
+
+/* 画像フィギュアの特別なスタイリング */
+.image-figure {
+    page-break-inside: avoid;
+    /* 印刷時に図表が分割されないように */
+    break-inside: avoid;
+}
+
+.image-figure figcaption {
+    font-weight: 500;
+    border-top: 1px solid var(--border-color);
+    padding-top: calc(var(--baseline-unit) * 0.25);
+    margin-top: calc(var(--baseline-unit) * 0.5);
+}
+
+/* ============================================
+   コード設定（等幅フォントの美的調整）
+   ============================================ */
+pre {
+    background-color: var(--code-background);
+    display: block;
+    padding: var(--baseline-unit);
+    overflow-x: auto;
+    margin-top: 0;
+    margin-bottom: var(--baseline-unit);
+
+    /* 等幅フォントの最適化 */
+    font-family: "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", "Source Code Pro", "Menlo", "Consolas", "DejaVu Sans Mono", monospace;
+    font-size: 0.875em;
+    /* 本文より少し小さく */
+    line-height: 1.5;
+    /* コードに適した行間 */
+
+    /* コードブロックの文字組み */
+    font-feature-settings: "liga" 0;
+    /* リガチャを無効化 */
+    font-variant-ligatures: none;
+    letter-spacing: 0;
+
+    /* 境界の調整 */
+    border-radius: 4px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+code,
+kbd,
+samp {
+    font-family: "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", "Source Code Pro", "Menlo", "Consolas", "DejaVu Sans Mono", monospace;
+    font-size: 0.875em;
+    padding: 0.2em 0.4em;
+    background-color: var(--code-background);
+    border-radius: 3px;
+
+    /* インラインコードの調整 */
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    font-feature-settings: "liga" 0;
+    letter-spacing: 0;
+}
+
+pre>code {
+    padding: 0;
+    background-color: transparent;
+    white-space: pre;
+    font-size: 1em;
+    border-radius: 0;
+}
+
+/* ============================================
+   テーブル設定（書籍的表組み）
+   ============================================ */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: var(--baseline-unit);
+    margin-bottom: var(--baseline-unit);
+
+    /* テーブルの文字組み */
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "HG Mincho E", "MS PMincho", "MS Mincho", Georgia, "Times New Roman", Times, serif;
+    font-size: 0.9em;
+    /* 本文より少し小さく */
+    line-height: 1.4;
+    /* 詰めた行間 */
+
+    /* 数字の表示最適化 */
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+}
+
+td,
+th {
+    padding: calc(var(--baseline-unit) * 0.3) 0.75em;
+    border-bottom: 1px solid var(--border-color);
+    text-align: left;
+    vertical-align: top;
+
+    /* セル内の文字組み */
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+
+th {
+    font-weight: 600;
+    border-bottom: 2px solid var(--accent-color);
+    background-color: rgba(29, 116, 132, 0.05);
+}
+
+/* 数値列の右揃え（.number クラス使用時） */
+td.number,
+th.number {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ============================================
+   フォーム要素設定
+   ============================================ */
+input,
+textarea {
+    border: 1px solid var(--text-color);
+}
+
+input:focus,
+textarea:focus {
+    border: 1px solid var(--accent-color);
+}
+
+textarea {
+    width: 100%;
+}
+
+.button,
+button,
+input[type=submit],
+input[type=reset],
+input[type=button],
+input[type=file]::file-selector-button {
+    display: inline-block;
+    padding: 5px 10px;
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+    background-color: var(--accent-color);
+    color: var(--background-color);
+    border-radius: 1px;
+    border: 1px solid var(--accent-color);
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.button:hover,
+button:hover,
+input[type=submit]:hover,
+input[type=reset]:hover,
+input[type=button]:hover,
+input[type=file]::file-selector-button:hover {
+    background-color: var(--accent-hover-color);
+    color: var(--background-color);
+    outline: 0;
+}
+
+.button[disabled],
+button[disabled],
+input[type=submit][disabled],
+input[type=reset][disabled],
+input[type=button][disabled],
+input[type=file][disabled] {
+    cursor: default;
+    opacity: 0.5;
+}
+
+.button:focus-visible,
+button:focus-visible,
+input[type=submit]:focus-visible,
+input[type=reset]:focus-visible,
+input[type=button]:focus-visible,
+input[type=file]:focus-visible {
+    outline-style: solid;
+    outline-width: 2px;
+}
+
+textarea,
+select,
+input {
+    color: var(--text-color);
+    padding: 6px 10px;
+    margin-bottom: 10px;
+    background-color: var(--border-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    box-shadow: none;
+    box-sizing: border-box;
+}
+
+textarea:focus,
+select:focus,
+input:focus {
+    border: 1px solid var(--accent-color);
+    outline: 0;
+}
+
+input[type=checkbox]:focus {
+    outline: 1px dotted var(--accent-color);
+}
+
+label,
+legend,
+fieldset {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+/* ============================================
+   ハンバーガーメニューのスタイル
+   ============================================ */
+
+/* ハンバーガーボタン */
+.hamburger-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(74, 74, 74, 0.4);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.hamburger-btn:hover {
+    background: var(--border-color);
+    border-color: rgba(74, 74, 74, 0.6);
+}
+
+/* メニューが開いているときのハンバーガーボタンの調整 */
+.hamburger-btn.active {
+    z-index: 250;
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.hamburger-btn span {
+    display: block;
+    width: 25px;
+    height: 2px;
+    background: rgba(74, 74, 74, 0.6);
+    transition: all 0.3s ease;
+    border-radius: 2px;
+}
+
+.hamburger-btn.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5.5px, 5.5px);
+}
+
+.hamburger-btn.active span:nth-child(2) {
+    opacity: 0;
+    transform: scale(0);
+}
+
+.hamburger-btn.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(5.5px, -5.5px);
+}
+
+/* メニューが開いているときはハンバーガーボタンを非表示 */
+.hamburger-btn.menu-open {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* サイドメニュー */
+.side-menu {
+    position: fixed;
+    top: 0;
+    right: -300px;
+    width: 300px;
+    height: 100vh;
+    background: var(--background-color);
+    border-left: 1px solid var(--border-color);
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 200;
+    transition: right 0.3s ease;
+    overflow-y: auto;
+    padding: 0;
+}
+
+.side-menu.open {
+    right: 0;
+}
+
+.side-menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--background-color);
+    color: var(--text-color);
+}
+
+.side-menu-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: var(--text-color);
+}
+
+/* 目次 */
+.table-of-contents {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.table-of-contents li {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.table-of-contents a {
+    display: block;
+    padding: 15px 20px;
+    color: var(--text-color);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+.table-of-contents a:hover {
+    background: var(--border-color);
+    color: var(--text-color);
+    padding-left: 25px;
+}
+
+.table-of-contents a.active {
+    background: var(--border-color);
+    color: var(--text-color);
+    font-weight: bold;
+}
+
+/* オーバーレイ */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 150;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 575.98px) {
+    .side-menu {
+        width: 280px;
+        right: -280px;
+    }
+
+    .hamburger-btn {
+        top: 15px;
+        right: 15px;
+        width: 45px;
+        height: 45px;
+    }
+}
+
+/* ============================================
+   GitHubアラート記法のスタイル（書籍品質）
+   ============================================ */
+.alert {
+    margin: var(--baseline-unit) 0;
+    padding: var(--baseline-unit);
+    border-radius: 6px;
+    border-left: 4px solid;
+    background-color: #f8f9fa;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+    /* アラート内の文字組み */
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "HG Mincho E", "MS PMincho", "MS Mincho", Georgia, "Times New Roman", Times, serif;
+    line-height: 1.6;
+    font-feature-settings: "palt" 1, "pkna" 1;
+}
+
+.alert-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: calc(var(--baseline-unit) * 0.5);
+    font-weight: 600;
+    font-size: 1.05rem;
+    letter-spacing: 0.02em;
+}
+
+.alert-icon {
+    margin-right: 0.6rem;
+    font-size: 1.2rem;
+    line-height: 1;
+}
+
+.alert-title {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.875rem;
+    font-weight: 700;
+}
+
+.alert-content {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.65;
+}
+
+.alert-content p {
+    margin: calc(var(--baseline-unit) * 0.3) 0;
+    font-family: inherit;
+    text-align: left;
+    /* アラート内は左揃え */
+    letter-spacing: 0.02em;
+}
+
+.alert-content p:first-child {
+    margin-top: 0;
+}
+
+.alert-content p:last-child {
+    margin-bottom: 0;
+}
+
+/* 強調表示の改善 */
+.alert-content strong,
+.alert-content b {
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
+.alert-content code {
+    font-size: 0.875em;
+    padding: 0.15em 0.3em;
+}
+
+/* アラートタイプ別のスタイル */
+.alert-note {
+    border-left-color: #0969da;
+    background-color: #ddf4ff;
+}
+
+.alert-note .alert-title {
+    color: #0969da;
+}
+
+.alert-warning {
+    border-left-color: #9a6700;
+    background-color: #fff8c5;
+}
+
+.alert-warning .alert-title {
+    color: #9a6700;
+}
+
+.alert-important {
+    border-left-color: #8250df;
+    background-color: #fbf0ff;
+}
+
+.alert-important .alert-title {
+    color: #8250df;
+}
+
+.alert-tip {
+    border-left-color: #1a7f37;
+    background-color: #dcffe4;
+}
+
+.alert-tip .alert-title {
+    color: #1a7f37;
+}
+
+.alert-caution {
+    border-left-color: #cf222e;
+    background-color: #ffebee;
+}
+
+.alert-caution .alert-title {
+    color: #cf222e;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 575.98px) {
+    .alert {
+        margin: 1rem 0;
+        padding: 0.75rem;
+        border-radius: 6px;
+    }
+
+    .alert-header {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .alert-icon {
+        font-size: 1.1rem;
+    }
+}
+
+/* ============================================
+   コードブロックとインラインコードのスタイル
+   ============================================ */
+/* インラインコード */
+code {
+    background-color: var(--code-background);
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    font-size: 0.9em;
+    color: #24292f;
+    white-space: nowrap;
+}
+
+/* コードブロック */
+pre {
+    background-color: var(--code-background);
+    border-radius: 6px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+    border: 1px solid #d1d9e0;
+}
+
+pre code {
+    background: none;
+    padding: 0;
+    border-radius: 0;
+    font-size: 0.875rem;
+    white-space: pre;
+    color: #24292f;
+    line-height: 1.45;
+}
+
+/* 言語ラベル付きコードブロック */
+pre code[class*="language-"] {
+    color: #24292f;
+}
+
+/* コードブロック内のシンタックスハイライト風の基本スタイル */
+pre code .keyword {
+    color: #d73a49;
+    font-weight: bold;
+}
+
+pre code .string {
+    color: #032f62;
+}
+
+pre code .comment {
+    color: #6a737d;
+    font-style: italic;
+}
+
+pre code .number {
+    color: #005cc5;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 575.98px) {
+    pre {
+        margin: 1rem 0;
+        padding: 0.75rem;
+        border-radius: 4px;
+    }
+
+    pre code {
+        font-size: 0.8rem;
+    }
+
+    code {
+        font-size: 0.85em;
+        padding: 0.15em 0.3em;
+    }
+}
