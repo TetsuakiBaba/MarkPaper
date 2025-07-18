@@ -5,33 +5,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <title>MarkPaper</title>
-  <!-- 軽量で本風の読みやすいスタイル -->
-
   <link rel="stylesheet" href="./markpaper.css">
 </head>
 
 <body>
-  <!-- ハンバーガーメニューボタン -->
   <button id="hamburger-btn" class="hamburger-btn" aria-label="メニューを開く">
     <span></span>
     <span></span>
     <span></span>
   </button>
 
-  <!-- サイドメニュー -->
   <nav id="side-menu" class="side-menu">
     <div class="side-menu-header">
       <h3>Menu</h3>
     </div>
     <ul id="table-of-contents" class="table-of-contents">
-      <!-- JavaScriptで動的に生成 -->
     </ul>
   </nav>
 
+  <article id="content">Loading...</article>
   <!-- オーバーレイ -->
   <div id="overlay" class="overlay"></div>
-
-  <article id="content">Loading...</article>
 
   <script src="markpaper.js"></script>
 </body>

@@ -26,6 +26,10 @@
     let alertType = '';
     let alertContent = [];
 
+    // blockquote処理用の変数
+    let inBlockquote = false;
+    let blockquoteContent = [];
+
     // コードブロック処理用の変数
     let inCodeBlock = false;
     let codeLanguage = '';
@@ -93,6 +97,46 @@
         inAlert = false;
         alertType = '';
         alertContent = [];
+      }
+    };
+
+    const closeBlockquote = () => {
+      if (inBlockquote) {
+        html += '<blockquote>';
+
+        // 空行を段落区切りとして処理
+        let paragraphs = [];
+        let currentParagraph = [];
+
+        blockquoteContent.forEach((content) => {
+          if (content === '') {
+            // 空行の場合、現在の段落を保存
+            if (currentParagraph.length > 0) {
+              paragraphs.push(currentParagraph.join(' '));
+              currentParagraph = [];
+            }
+          } else {
+            // 通常の内容の場合、現在の段落に追加
+            currentParagraph.push(content);
+          }
+        });
+
+        // 最後の段落を追加
+        if (currentParagraph.length > 0) {
+          paragraphs.push(currentParagraph.join(' '));
+        }
+
+        // 段落をHTMLとして出力
+        paragraphs.forEach(paragraph => {
+          if (paragraph.trim()) {
+            html += `<p>${escapeInline(paragraph, currentSectionFootnotes, footnotes)}</p>`;
+          }
+        });
+
+        html += '</blockquote>\n';
+
+        inBlockquote = false;
+        blockquoteContent = [];
       }
     };
 
@@ -183,6 +227,7 @@
           // コードブロック開始
           closeList();
           closeAlert();
+          closeBlockquote();
           inCodeBlock = true;
           codeBlockFence = currentFence;
           const languageMatch = line.match(/^```+(\w+)?/);
@@ -210,6 +255,7 @@
       if ((m = line.match(/^#####\s+(.*)/))) {
         closeList();
         closeAlert();
+        closeBlockquote();
         closeCodeBlock();
         // レベル5以下の見出しが来たらh3,h4セクションの脚注を追加
         if (currentSectionLevel >= 3) {
@@ -220,6 +266,7 @@
       } else if ((m = line.match(/^####\s+(.*)/))) {
         closeList();
         closeAlert();
+        closeBlockquote();
         closeCodeBlock();
         // レベル4以下の見出しが来たらh3セクションの脚注を追加
         if (currentSectionLevel >= 3) {
@@ -227,9 +274,10 @@
         }
         currentSectionLevel = 4;
         html += `<h4>${escapeInline(m[1], currentSectionFootnotes, footnotes)}</h4>\n`;
-      } else if ((m = line.match(/^###\s+(.*)/))) {
+      } else if ((m = line.match(/^###\s*(.*)/))) {
         closeList();
         closeAlert();
+        closeBlockquote();
         closeCodeBlock();
         // 新しいh3が来たら前のセクションの脚注を追加
         if (currentSectionLevel >= 3) {
@@ -237,20 +285,32 @@
         }
         sectionNum++;
         currentSectionLevel = 3;
-        html += `<h3>${chapterNum}.${sectionNum} ${escapeInline(m[1], currentSectionFootnotes, footnotes)}</h3>\n`;
-      } else if ((m = line.match(/^##\s+(.*)/))) {
+        const headingText = m[1].trim() || ''; // 空の場合は空文字
+        if (headingText) {
+          html += `<h3>${chapterNum}.${sectionNum} ${escapeInline(headingText, currentSectionFootnotes, footnotes)}</h3>\n`;
+        } else {
+          html += `<h3>${chapterNum}.${sectionNum}</h3>\n`;
+        }
+      } else if ((m = line.match(/^##\s*(.*)/))) {
         closeList();
         closeAlert();
+        closeBlockquote();
         closeCodeBlock();
         // 新しいh2が来たら前のセクションの脚注を追加
         addFootnotesToSection();
         chapterNum++;
         sectionNum = 0; // 新しい章が始まったらセクション番号をリセット
         currentSectionLevel = 2;
-        html += `<h2>${chapterNum} ${escapeInline(m[1], currentSectionFootnotes, footnotes)}</h2>\n`;
+        const headingText = m[1].trim() || ''; // 空の場合は空文字
+        if (headingText) {
+          html += `<h2>${chapterNum} ${escapeInline(headingText, currentSectionFootnotes, footnotes)}</h2>\n`;
+        } else {
+          html += `<h2>${chapterNum}</h2>\n`;
+        }
       } else if ((m = line.match(/^#\s+(.*)/))) {
         closeList();
         closeAlert();
+        closeBlockquote();
         closeCodeBlock();
         // h1が来たら前のセクションの脚注を追加
         addFootnotesToSection();
@@ -283,7 +343,7 @@
         html += `<li>${escapeInline(line.slice(2).trim(), currentSectionFootnotes, footnotes)}</li>\n`;
       }
       // GitHubアラート記法とblockquoteの処理
-      else if (line.startsWith('> ') || (line === '>' && inAlert)) {
+      else if (line.startsWith('> ') || (line === '>' && (inAlert || inBlockquote))) {
         const quoteLine = line.startsWith('> ') ? line.slice(2).trim() : '';
 
         // GitHubアラート記法をチェック
@@ -291,6 +351,7 @@
         if (alertMatch) {
           closeList();
           closeAlert(); // 前のアラートを閉じる
+          closeBlockquote(); // 前のblockquoteを閉じる
           inAlert = true;
           alertType = alertMatch[1].toLowerCase();
         } else if (inAlert) {
@@ -299,13 +360,18 @@
         } else {
           // 通常のblockquote
           closeList();
-          html += `<blockquote><p>${escapeInline(quoteLine, currentSectionFootnotes, footnotes)}</p></blockquote>\n`;
+          closeAlert(); // アラートが開いていたら閉じる
+          if (!inBlockquote) {
+            inBlockquote = true;
+          }
+          blockquoteContent.push(quoteLine);
         }
       }
       // 画像記法の処理（独立した行として）
       else if (line.match(/^!\[([^\]]*)\]\(([^)]+)\)$/)) {
         closeList();
         closeAlert();
+        closeBlockquote();
         const match = line.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
         const alt = match[1];
         const src = match[2];
@@ -315,7 +381,7 @@
           globalFigureNum++;
           html += `<figure class="image-figure">
             <img src="${src}" alt="${escapeHTML(alt)}" />
-            <figcaption>図${globalFigureNum} ${escapeHTML(alt)}</figcaption>
+            <figcaption>Fig ${globalFigureNum} ${escapeHTML(alt)}</figcaption>
           </figure>\n`;
         } else {
           // キャプションなし画像
@@ -325,6 +391,15 @@
       // アラート以外の行が来たらアラートを閉じる
       else if (inAlert) {
         closeAlert();
+        closeBlockquote(); // blockquoteも閉じる
+        // 現在の行も処理
+        if (line.trim()) {
+          html += `<p>${escapeInline(line, currentSectionFootnotes, footnotes)}</p>\n`;
+        }
+      }
+      // blockquote以外の行が来たらblockquoteを閉じる
+      else if (inBlockquote) {
+        closeBlockquote();
         // 現在の行も処理
         if (line.trim()) {
           html += `<p>${escapeInline(line, currentSectionFootnotes, footnotes)}</p>\n`;
@@ -333,12 +408,14 @@
       // 段落
       else {
         closeList();
+        closeBlockquote();
         html += `<p>${escapeInline(line, currentSectionFootnotes, footnotes)}</p>\n`;
       }
     });
 
     closeList();
     closeAlert();
+    closeBlockquote();
     closeCodeBlock();
     // 最後のセクションの脚注を追加
     addFootnotesToSection();
@@ -392,7 +469,7 @@
         globalFigureNum++;
         return `<figure class="image-figure">
           <img src="${src}" alt="${escapeHTML(alt)}" />
-          <figcaption>図${globalFigureNum} ${escapeHTML(alt)}</figcaption>
+          <figcaption>Fig ${globalFigureNum} ${escapeHTML(alt)}</figcaption>
         </figure>`;
       } else {
         // キャプションなし画像

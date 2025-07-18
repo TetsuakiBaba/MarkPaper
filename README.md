@@ -1,6 +1,44 @@
+![Screenshot of MarkPaper](teaser.png)
 # MarkPaper
 
-A tool that generates beautiful HTML documents suitable for academic papers and technical documents using a custom Markdown parser. It provides rich features including a hamburger menu with table of contents, footnote system, GitHub-style alerts, code blocks, and more.
+To create beautiful documents, all you need is to write Markdown text. MarkPaper is a tool that generates beautiful HTML documents suitable for academic papers and technical documents using a custom Markdown parser. It provides rich features including a hamburger menu with table of contents, footnote system, GitHub-style alerts, code blocks, and more.
+
+## Getting Started
+CDN link to include the script in your HTML:
+```
+<script src="https://cdn.jsdelivr.net/gh/TetsuakiBaba/MarkPaper/markpaper.js" crossorigin="anonymous" type="text/javascript"></script>
+```
+
+HTML Template:
+```html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>MarkPaper</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/TetsuakiBaba/MarkPaper/markpaper.css">
+</head>
+<body>
+    <button id="hamburger-btn" class="hamburger-btn" aria-label="Open Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+    <nav id="side-menu" class="side-menu">
+        <div class="side-menu-header">
+            <h3>Menu</h3>
+        </div>
+        <ul id="table-of-contents" class="table-of-contents">
+        </ul>
+    </nav>
+    <article id="content">Loading...</article>
+    <script src="https://cdn.jsdelivr.net/gh/TetsuakiBaba/MarkPaper/markpaper.js" crossorigin="anonymous"
+        type="text/javascript"></script>
+</body>
+
+</html>
+```
 
 ## Features
 

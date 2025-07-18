@@ -176,6 +176,7 @@ h6 {
 }
 
 /* タイトルページの後の最初の要素を新しいページとして開始 */
+/* 
 h1+p+p {
     margin-top: 100vh;
     position: relative;
@@ -185,6 +186,7 @@ h1+p+p {
     padding-right: 0rem;
     background-color: var(--background-color);
 }
+*/
 
 /* ============================================
    段落・テキスト要素（書籍品質の文字組み）
@@ -459,7 +461,7 @@ figure {
 }
 
 figure img {
-    margin-bottom: calc(var(--baseline-unit) * 0.5);
+    margin-bottom: calc(var(--baseline-unit) * 0.125);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     border-radius: 4px;
 }
@@ -489,9 +491,8 @@ figcaption {
 
 .image-figure figcaption {
     font-weight: 500;
-    border-top: 1px solid var(--border-color);
-    padding-top: calc(var(--baseline-unit) * 0.25);
-    margin-top: calc(var(--baseline-unit) * 0.5);
+    padding-top: calc(var(--baseline-unit) * 0.125);
+    margin-top: calc(var(--baseline-unit) * 0.125);
 }
 
 /* ============================================
