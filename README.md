@@ -3,13 +3,12 @@
 
 To create beautiful documents, all you need is to write Markdown text. MarkPaper is a tool that generates beautiful HTML documents suitable for academic papers and technical documents using a custom Markdown parser. It provides rich features including a hamburger menu with table of contents, footnote system, GitHub-style alerts, code blocks, and more.
 
-## Getting Started
-CDN link to include the script in your HTML:
-```
-<script src="https://cdn.jsdelivr.net/gh/TetsuakiBaba/MarkPaper/markpaper.js" crossorigin="anonymous" type="text/javascript"></script>
-```
+## Demo
+You can see the demo of MarkPaper at [MarkPaper Demo](https://tetsuakibaba.github.io/MarkPaper/?file=sample.md).
 
-HTML Template:
+## Getting Started
+
+### 1. Include the CSS and JavaScript files in your HTML:
 ```html
 <!DOCTYPE html>
 <html lang="ja">
@@ -39,6 +38,18 @@ HTML Template:
 
 </html>
 ```
+### 2. Load your Markdown content
+Open the index.html file with a file parameter such as `file=your_markdown_file` to load the Markdown content. For example, you can use `file=index.md` in the URL to load the `index.md` file.
+
+### CDNs
+CDN link to include the script in your HTML:
+```
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/TetsuakiBaba/MarkPaper/markpaper.css">
+```
+```
+<script src="https://cdn.jsdelivr.net/gh/TetsuakiBaba/MarkPaper/markpaper.js" crossorigin="anonymous" type="text/javascript"></script>
+```
+
 
 ## Features
 
