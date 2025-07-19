@@ -456,8 +456,35 @@ li ul,
 li ol {
     margin-top: calc(var(--baseline-unit) * 0.25);
     margin-bottom: calc(var(--baseline-unit) * 0.25);
+    margin-left: 0;
+    padding-left: 1.5em;
     font-size: inherit;
     /* 親のサイズを維持 */
+}
+
+/* リスト項目内のネストしたリスト項目の調整 */
+li li {
+    margin-bottom: calc(var(--baseline-unit) * 0.25);
+}
+
+/* 3レベル以上のネスト対応 */
+li ul ul,
+li ul ol,
+li ol ul,
+li ol ol {
+    padding-left: 1.2em;
+}
+
+/* 4レベル以上のネスト対応 */
+li ul ul ul,
+li ul ul ol,
+li ul ol ul,
+li ul ol ol,
+li ol ul ul,
+li ol ul ol,
+li ol ol ul,
+li ol ol ol {
+    padding-left: 1em;
 }
 
 

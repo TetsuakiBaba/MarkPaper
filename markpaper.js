@@ -25,6 +25,9 @@
     let inUList = false;   // * の番号なしリスト
     let inOList = false;   // - の番号ありリスト
 
+    // リストの入れ子管理用の変数
+    let listStack = [];    // スタック形式でリストレベルを管理 [{type: 'ul', level: 0}, {type: 'ol', level: 2}, ...]
+
     // 章番号管理用の変数
     let chapterNum = 0;  // ## の番号
     let sectionNum = 0;  // ### の番号
@@ -55,14 +58,68 @@
     let codeBlockFence = ''; // フェンスの種類を記録（```または````）
 
     const closeList = () => {
-      if (inUList) {
-        html += '</ul>\n';
-        inUList = false;
+      // スタックを空になるまで閉じる
+      while (listStack.length > 0) {
+        const listItem = listStack.pop();
+        html += `</${listItem.type}>\n`;
       }
-      if (inOList) {
-        html += '</ol>\n';
-        inOList = false;
+      inUList = false;
+      inOList = false;
+    };
+
+    // リストレベルの管理とHTMLの生成
+    const handleList = (line, listType) => {
+      // インデントレベルを計算
+      let match, indent, content, level;
+
+      if (listType === 'ul') {
+        // 箇条書きリスト（* または -）
+        match = line.match(/^(\s*)[*-]\s+(.*)$/);
+      } else {
+        // 番号付きリスト（1. など）
+        match = line.match(/^(\s*)\d+\.\s+(.*)$/);
       }
+
+      if (!match) return false;
+
+      indent = match[1];
+      content = match[2];
+      level = Math.floor(indent.length / 2);
+
+      // 現在のリストスタックと新しいレベルを比較
+      while (listStack.length > level + 1) {
+        // 深いレベルのリストを閉じる
+        const closingItem = listStack.pop();
+        html += `</${closingItem.type}>\n`;
+      }
+
+      // 新しいリストレベルを開始する必要がある場合
+      if (listStack.length === level) {
+        html += `<${listType}>\n`;
+        listStack.push({ type: listType, level: level });
+        if (listType === 'ul') {
+          inUList = true;
+        } else {
+          inOList = true;
+        }
+      }
+      // 既存のリストのタイプが異なる場合、切り替える
+      else if (listStack.length === level + 1 && listStack[level].type !== listType) {
+        const oldItem = listStack.pop();
+        html += `</${oldItem.type}>\n`;
+        html += `<${listType}>\n`;
+        listStack.push({ type: listType, level: level });
+        if (listType === 'ul') {
+          inUList = true;
+          inOList = false;
+        } else {
+          inOList = true;
+          inUList = false;
+        }
+      }
+
+      html += `<li>${escapeInline(content, currentSectionFootnotes, footnotes)}</li>\n`;
+      return true;
     };
 
     const closeAlert = () => {
@@ -147,7 +204,7 @@
         // 段落をHTMLとして出力（各行を個別にescapeInlineしてからbrで結合）
         paragraphs.forEach(paragraphLines => {
           if (paragraphLines.length > 0) {
-            const escapedLines = paragraphLines.map(line => 
+            const escapedLines = paragraphLines.map(line =>
               escapeInline(line.trim(), currentSectionFootnotes, footnotes)
             );
             html += `<p>${escapedLines.join('<br>')}</p>`;
@@ -302,8 +359,8 @@
         return;
       }
 
-      // インデントコードブロック（4スペースまたはタブ）
-      if (line.match(/^(    |\t)/) && !inAlert) {
+      // インデントコードブロック（4スペースまたはタブ）ただしリスト項目は除外
+      if (line.match(/^(    |\t)/) && !inAlert && !line.match(/^\s*[*-]\s+/) && !line.match(/^\s*\d+\.\s+/)) {
         closeList();
         const codeText = line.replace(/^(    |\t)/, '');
         html += `<pre><code>${escapeHTML(codeText)}</code></pre>\n`;
@@ -430,32 +487,20 @@
           html += `<h1>${escapeInline(title, currentSectionFootnotes, footnotes)}</h1>\n`;
         }
       }
-      // 箇条書き
-      else if (line.startsWith('* ')) {
-        // 番号なしリスト (ul)
+      // 箇条書きと番号付きリスト（入れ子対応）
+      else if (line.match(/^\s*[*-]\s+/) || line.match(/^\s*\d+\.\s+/)) {
         closeBlockquote(); // リスト開始時にblockquoteを閉じる
-        if (inOList) {
-          html += '</ol>\n';
-          inOList = false;
+        closeAlert(); // リスト開始時にアラートを閉じる
+
+        // リストタイプを判定
+        let listType;
+        if (line.match(/^\s*\d+\.\s+/)) {
+          listType = 'ol';
+        } else {
+          listType = 'ul';
         }
-        if (!inUList) {
-          html += '<ul>\n';
-          inUList = true;
-        }
-        html += `<li>${escapeInline(line.slice(2).trim(), currentSectionFootnotes, footnotes)}</li>\n`;
-      }
-      else if (line.startsWith('- ')) {
-        // 番号ありリスト (ol)
-        closeBlockquote(); // リスト開始時にblockquoteを閉じる
-        if (inUList) {
-          html += '</ul>\n';
-          inUList = false;
-        }
-        if (!inOList) {
-          html += '<ol>\n';
-          inOList = true;
-        }
-        html += `<li>${escapeInline(line.slice(2).trim(), currentSectionFootnotes, footnotes)}</li>\n`;
+
+        handleList(line, listType);
       }
       // テーブル行のチェック（コードブロック内ではない場合のみ）
       else if (!inCodeBlock && line.includes('|')) {
