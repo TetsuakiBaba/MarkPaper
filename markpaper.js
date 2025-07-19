@@ -5,6 +5,19 @@
   // グローバルな図番号管理
   let globalFigureNum = 0;
 
+  // 現在読み込まれているファイル名を保存
+  let currentFileName = '';
+
+  // フッター生成関数
+  function generateFooter() {
+    const fileName = currentFileName || 'unknown file';
+    return `
+<footer class="markpaper-footer">
+  <p>This HTML page was automatically generated from "${fileName}" by <a href="https://github.com/TetsuakiBaba/MarkPaper" target="_blank" rel="noopener noreferrer">MarkPaper</a>.</p>
+</footer>
+`;
+  }
+
   // --- 極小 Markdown → HTML 変換関数 ----------------------------
   function mdToHTML(md) {
     const lines = md.split(/\r?\n/);
@@ -29,6 +42,11 @@
     // blockquote処理用の変数
     let inBlockquote = false;
     let blockquoteContent = [];
+
+    // テーブル処理用の変数
+    let inTable = false;
+    let tableRows = [];
+    let tableHeaders = [];
 
     // コードブロック処理用の変数
     let inCodeBlock = false;
@@ -140,6 +158,40 @@
       }
     };
 
+    const closeTable = () => {
+      if (inTable) {
+        html += '<table>\n';
+
+        // ヘッダー行を出力
+        if (tableHeaders.length > 0) {
+          html += '<thead>\n<tr>\n';
+          tableHeaders.forEach(header => {
+            html += `<th>${escapeInline(header.trim(), currentSectionFootnotes, footnotes)}</th>\n`;
+          });
+          html += '</tr>\n</thead>\n';
+        }
+
+        // データ行を出力
+        if (tableRows.length > 0) {
+          html += '<tbody>\n';
+          tableRows.forEach(row => {
+            html += '<tr>\n';
+            row.forEach(cell => {
+              html += `<td>${escapeInline(cell.trim(), currentSectionFootnotes, footnotes)}</td>\n`;
+            });
+            html += '</tr>\n';
+          });
+          html += '</tbody>\n';
+        }
+
+        html += '</table>\n';
+
+        inTable = false;
+        tableRows = [];
+        tableHeaders = [];
+      }
+    };
+
     const closeCodeBlock = () => {
       if (inCodeBlock) {
         const languageClass = codeLanguage ? ` class="language-${codeLanguage}"` : '';
@@ -190,11 +242,11 @@
       }
     };
 
-    lines.forEach((raw) => {
+    lines.forEach((raw, i) => {
       const line = raw.trimEnd();
 
-      // 空行
-      if (line.trim() === '') {
+      // 空行（メタデータ処理でマークされた行もスキップ）
+      if (line.trim() === '' || line === '') {
         if (inCodeBlock) {
           codeContent.push('');
         } else if (inAlert) {
@@ -202,6 +254,7 @@
           alertContent.push('');
         } else {
           closeList();
+          closeTable(); // 空行でテーブルも閉じる
         }
         return;
       }
@@ -312,10 +365,63 @@
         closeAlert();
         closeBlockquote();
         closeCodeBlock();
+        closeTable();
         // h1が来たら前のセクションの脚注を追加
         addFootnotesToSection();
         currentSectionLevel = 1;
-        html += `<h1>${escapeInline(m[1], currentSectionFootnotes, footnotes)}</h1>\n`;
+
+        const title = m[1];
+        let metadata = {};
+        let metadataEndIndex = i;
+
+        // 次の行からメタデータを収集
+        while (metadataEndIndex + 1 < lines.length) {
+          const nextLine = lines[metadataEndIndex + 1].trim();
+          const metaMatch = nextLine.match(/^(\w+):\s*(.+)$/);
+
+          if (metaMatch && nextLine !== '') {
+            metadata[metaMatch[1]] = metaMatch[2];
+            metadataEndIndex++;
+          } else if (nextLine === '') {
+            // 空行の場合はスキップして続行
+            metadataEndIndex++;
+          } else {
+            break; // メタデータ終了
+          }
+        }
+
+        // メタデータが見つかった場合はインデックスを進める
+        if (Object.keys(metadata).length > 0) {
+          // forEachのインデックスは直接変更できないため、別の方法でスキップ処理
+          for (let skipIndex = i + 1; skipIndex <= metadataEndIndex; skipIndex++) {
+            if (skipIndex < lines.length) {
+              lines[skipIndex] = ''; // 処理済みとしてマーク
+            }
+          }
+        }
+
+        // HTMLの生成
+        if (Object.keys(metadata).length > 0) {
+          html += `<header class="document-header">\n`;
+          html += `<h1>${escapeInline(title, currentSectionFootnotes, footnotes)}</h1>\n`;
+
+          if (metadata.author) {
+            html += `<div class="author">${escapeHTML(metadata.author)}</div>\n`;
+          }
+          if (metadata.date) {
+            html += `<div class="date">${escapeHTML(metadata.date)}</div>\n`;
+          }
+          if (metadata.institution) {
+            html += `<div class="institution">${escapeHTML(metadata.institution)}</div>\n`;
+          }
+          if (metadata.editor) {
+            html += `<div class="editor">Edited by ${escapeHTML(metadata.editor)}</div>\n`;
+          }
+
+          html += `</header>\n`;
+        } else {
+          html += `<h1>${escapeInline(title, currentSectionFootnotes, footnotes)}</h1>\n`;
+        }
       }
       // 箇条書き
       else if (line.startsWith('* ')) {
@@ -341,6 +447,38 @@
           inOList = true;
         }
         html += `<li>${escapeInline(line.slice(2).trim(), currentSectionFootnotes, footnotes)}</li>\n`;
+      }
+      // テーブル行のチェック（コードブロック内ではない場合のみ）
+      else if (!inCodeBlock && line.includes('|')) {
+        console.log('Table candidate line:', line); // デバッグ用
+        // より柔軟なテーブル行のマッチング（先頭末尾の|はオプション）
+        const tableMatch = line.match(/^\s*\|?(.+)\|?\s*$/);
+        if (tableMatch && tableMatch[1].includes('|')) {
+          console.log('Table match found:', tableMatch[1]); // デバッグ用
+          const cells = tableMatch[1].split('|').map(cell => cell.trim());
+
+          if (!inTable) {
+            closeAlert();
+            closeBlockquote();
+            closeCodeBlock();
+            inTable = true;
+
+            // 最初の行をヘッダーとして扱う
+            if (i + 1 < lines.length && lines[i + 1].includes('|') && lines[i + 1].includes('-')) {
+              tableHeaders = cells;
+            } else {
+              // ヘッダーなしの場合、最初の行もデータ行として扱う
+              tableRows.push(cells);
+            }
+          } else {
+            // セパレーター行（|---|---|）をスキップ
+            if (cells.every(cell => /^[-\s:]*$/.test(cell))) {
+              // セパレーター行は何もしない
+            } else {
+              tableRows.push(cells);
+            }
+          }
+        }
       }
       // GitHubアラート記法とblockquoteの処理
       else if (line.startsWith('> ') || (line === '>' && (inAlert || inBlockquote))) {
@@ -400,6 +538,7 @@
       // blockquote以外の行が来たらblockquoteを閉じる
       else if (inBlockquote) {
         closeBlockquote();
+        closeTable();
         // 現在の行も処理
         if (line.trim()) {
           html += `<p>${escapeInline(line, currentSectionFootnotes, footnotes)}</p>\n`;
@@ -409,6 +548,7 @@
       else {
         closeList();
         closeBlockquote();
+        closeTable();
         html += `<p>${escapeInline(line, currentSectionFootnotes, footnotes)}</p>\n`;
       }
     });
@@ -416,9 +556,14 @@
     closeList();
     closeAlert();
     closeBlockquote();
+    closeTable();
     closeCodeBlock();
     // 最後のセクションの脚注を追加
     addFootnotesToSection();
+
+    // フッターを追加
+    html += generateFooter();
+
     return html;
   }
 
@@ -496,6 +641,13 @@
 
       // href="の直後にあるURLは処理しない
       if (beforeMatch.endsWith('href="') || beforeMatch.endsWith("href='")) {
+        return match;
+      }
+
+      // <code>タグ内のURLは処理しない
+      const lastOpenCodeTag = beforeMatch.lastIndexOf('<code>');
+      const lastCloseCodeTag = beforeMatch.lastIndexOf('</code>');
+      if (lastOpenCodeTag > lastCloseCodeTag && lastOpenCodeTag !== -1) {
         return match;
       }
 
@@ -635,8 +787,46 @@
     activeLink.classList.add('active');
   }
 
+  // 動的DOM要素を作成する関数
+  function createDynamicElements() {
+    // ハンバーガーボタンを作成
+    const hamburgerBtn = document.createElement('button');
+    hamburgerBtn.id = 'hamburger-btn';
+    hamburgerBtn.className = 'hamburger-btn';
+    hamburgerBtn.setAttribute('aria-label', 'メニューを開く');
+    hamburgerBtn.innerHTML = `
+      <span></span>
+      <span></span>
+      <span></span>
+    `;
+
+    // サイドメニューを作成
+    const sideMenu = document.createElement('nav');
+    sideMenu.id = 'side-menu';
+    sideMenu.className = 'side-menu';
+    sideMenu.innerHTML = `
+      <div class="side-menu-header">
+        <h3>Menu</h3>
+      </div>
+      <ul id="table-of-contents" class="table-of-contents">
+      </ul>
+    `;
+
+    // オーバーレイを作成
+    const overlay = document.createElement('div');
+    overlay.id = 'overlay';
+    overlay.className = 'overlay';
+
+    // body要素の最初に追加
+    document.body.insertBefore(hamburgerBtn, document.body.firstChild);
+    document.body.insertBefore(sideMenu, document.body.firstChild.nextSibling);
+    document.body.appendChild(overlay);
+  }
+
   // ページ読み込み完了後に実行
   document.addEventListener('DOMContentLoaded', () => {
+    // 動的DOM要素を作成
+    createDynamicElements();
     // URLパラメータからファイル名を取得
     const urlParams = new URLSearchParams(window.location.search);
     const file = urlParams.get('file') || 'index.md';
@@ -652,14 +842,20 @@
 
   // Markdownファイルの読み込み完了後に目次を生成する関数を更新
   function renderMarkdownFile(path, targetId) {
+    console.log('Loading file:', path); // デバッグ用
+
+    // ファイル名を保存（パスからファイル名のみを抽出）
+    currentFileName = path.split('/').pop();
+
     fetch(path)
       .then((res) => {
         if (!res.ok) {
-          throw new Error('Markdown ファイルの取得に失敗しました');
+          throw new Error(`Markdown ファイルの取得に失敗しました: ${res.status} ${res.statusText}`);
         }
         return res.text();
       })
       .then((md) => {
+        console.log('File loaded successfully, parsing markdown...'); // デバッグ用
         // 新しいドキュメントの読み込み時に図番号をリセット
         globalFigureNum = 0;
 
@@ -676,7 +872,8 @@
         initScrollSpy();
       })
       .catch((err) => {
-        console.error(err);
+        console.error('Error loading file:', err); // デバッグ用
+        console.error('Attempted path:', path); // デバッグ用
         // ファイルが見つからない場合の詳細なエラーメッセージ
         let errorMessage = '';
         if (path === 'index.md') {

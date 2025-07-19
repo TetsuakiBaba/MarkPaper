@@ -2,7 +2,8 @@
    配色パラメータ設定（カスタマイズ可能）
    ============================================ */
 :root {
-    --text-color: #4a4a4a;
+    --text-color: #0a0a0a;
+    ;
     --background-color: #FFFFFF;
     --accent-color: #1d7484;
     --accent-hover-color: #982c61;
@@ -134,6 +135,69 @@ h1 {
     /* 特別な文字組み */
     letter-spacing: 0.05em;
     font-weight: 600;
+}
+
+/* ============================================
+   ドキュメントヘッダー（著者情報等）
+   ============================================ */
+.document-header {
+    text-align: center;
+    margin-bottom: calc(var(--baseline-unit) * 2);
+    padding-bottom: calc(var(--baseline-unit) * 1);
+    border-bottom: 2px solid var(--border-color);
+}
+
+.document-header h1 {
+    margin-bottom: calc(var(--baseline-unit) * 0.5);
+    border-bottom: none;
+}
+
+.document-header .author {
+    font-size: 1.1em;
+    font-weight: 500;
+    color: var(--text-color);
+    margin-bottom: calc(var(--baseline-unit) * 0.25);
+    font-family: "Hiragino Sans", "Yu Gothic", YuGothic, Meiryo, sans-serif;
+}
+
+.document-header .date {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: calc(var(--baseline-unit) * 0.125);
+}
+
+.document-header .institution {
+    font-size: 0.9em;
+    color: #666;
+    font-style: italic;
+    margin-bottom: calc(var(--baseline-unit) * 0.125);
+}
+
+.document-header .editor {
+    font-size: 0.85em;
+    color: #888;
+    font-style: italic;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 575.98px) {
+    .document-header {
+        margin-bottom: calc(var(--baseline-unit) * 1.5);
+        padding-bottom: calc(var(--baseline-unit) * 0.75);
+    }
+
+    .document-header .author {
+        font-size: 1em;
+    }
+
+    .document-header .date,
+    .document-header .institution {
+        font-size: 0.85em;
+    }
+
+    .document-header .editor {
+        font-size: 0.8em;
+    }
 }
 
 h2 {
@@ -1071,5 +1135,133 @@ pre code .number {
     code {
         font-size: 0.85em;
         padding: 0.15em 0.3em;
+    }
+}
+
+/* ============================================
+   テーブルスタイル
+   ============================================ */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--baseline-unit) 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+table thead {
+    background-color: #f8f9fa;
+}
+
+table th {
+    padding: 0.75rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-color);
+    border-bottom: 2px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
+    font-family: "Hiragino Sans", "Yu Gothic", YuGothic, Meiryo, sans-serif;
+}
+
+table th:last-child {
+    border-right: none;
+}
+
+table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
+    vertical-align: top;
+}
+
+table td:last-child {
+    border-right: none;
+}
+
+table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* テーブル内のコード */
+table code {
+    font-size: 0.8em;
+    background-color: var(--code-background);
+    padding: 0.1em 0.3em;
+    border-radius: 3px;
+}
+
+/* レスポンシブテーブル */
+@media (max-width: 575.98px) {
+    table {
+        font-size: 0.8rem;
+        margin: 1rem 0;
+    }
+
+    table th,
+    table td {
+        padding: 0.5rem;
+    }
+
+    /* 小さな画面でのスクロール */
+    .table-container {
+        overflow-x: auto;
+        margin: 1rem 0;
+    }
+}
+
+/* ============================================
+   フッター
+   ============================================ */
+.markpaper-footer {
+    margin-top: calc(var(--baseline-unit) * 3);
+    padding: calc(var(--baseline-unit) * 1) 0;
+    border-top: 1px solid var(--border-color);
+    text-align: center;
+    background-color: var(--background-color);
+}
+
+.markpaper-footer p {
+    font-size: 0.8rem;
+    color: #888;
+    margin: 0;
+    font-style: italic;
+    font-family: "Hiragino Sans", "Yu Gothic", YuGothic, Meiryo, sans-serif;
+    text-align: center;
+}
+
+.markpaper-footer a {
+    color: var(--accent-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.markpaper-footer a:hover {
+    color: var(--accent-hover-color);
+    text-decoration: underline;
+}
+
+.markpaper-footer a:visited {
+    color: var(--accent-visited-color);
+}
+
+/* レスポンシブフッター */
+@media (max-width: 575.98px) {
+    .markpaper-footer {
+        margin-top: calc(var(--baseline-unit) * 2);
+        padding: calc(var(--baseline-unit) * 0.75) 0;
+    }
+
+    .markpaper-footer p {
+        font-size: 0.75rem;
+        padding: 0 1rem;
     }
 }

@@ -1,7 +1,7 @@
 # TALES OF THE JAZZ AGE
-
-By F. Scott Fitzgerald
-
+author: F. Scott Fitzgerald
+date: 1922
+institution: American Literature
 
 This page was created with MarkPaper and introduces excerpts from [Scott Fitzgerald's "Tales of the Jazz Age"](https://www.gutenberg.org/cache/epub/6695/pg6695-images.html). The following chapters contain his representative short stories. The text is based on the Project Gutenberg License.
 

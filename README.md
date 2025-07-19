@@ -1,5 +1,9 @@
 ![Screenshot of MarkPaper](teaser.png)
 # MarkPaper
+author: Tetsuaki Baba
+date: 2025-07-19
+institution: Tokyo Metropolitan University
+
 
 To create beautiful documents, all you need is to write Markdown text. MarkPaper is a tool that generates beautiful HTML documents suitable for academic papers and technical documents using a custom Markdown parser. It provides rich features including a hamburger menu with table of contents, footnote system, GitHub-style alerts, code blocks, and more.
 
@@ -8,7 +12,7 @@ You can see the demo of MarkPaper at [MarkPaper Demo](https://tetsuakibaba.githu
 
 ## Getting Started
 
-### 1. Include the CSS and JavaScript files in your HTML:
+#### 1. Include the CSS and JavaScript files in your HTML:
 ```html
 <!DOCTYPE html>
 <html lang="ja">
@@ -19,27 +23,15 @@ You can see the demo of MarkPaper at [MarkPaper Demo](https://tetsuakibaba.githu
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/TetsuakiBaba/MarkPaper/markpaper.css">
 </head>
 <body>
-    <button id="hamburger-btn" class="hamburger-btn" aria-label="Open Menu">
-        <span></span>
-        <span></span>
-        <span></span>
-    </button>
-    <nav id="side-menu" class="side-menu">
-        <div class="side-menu-header">
-            <h3>Menu</h3>
-        </div>
-        <ul id="table-of-contents" class="table-of-contents">
-        </ul>
-    </nav>
     <article id="content">Loading...</article>
     <script src="https://cdn.jsdelivr.net/gh/TetsuakiBaba/MarkPaper/markpaper.js" crossorigin="anonymous"
         type="text/javascript"></script>
 </body>
-
 </html>
 ```
-### 2. Load your Markdown content
+#### 2. Load your Markdown content
 Open the index.html file with a file parameter such as `file=your_markdown_file` to load the Markdown content. For example, you can use `file=index.md` in the URL to load the `index.md` file.
+> ex. `https://yourdomain.com/path/to/index.html?file=index.md`
 
 ### CDNs
 CDN link to include the script in your HTML:
@@ -71,6 +63,28 @@ CDN link to include the script in your HTML:
 #### h4 heading
 ##### h5 heading
 ```
+
+#### Document Metadata
+```markdown
+# Document Title
+author: John Doe
+date: 2024-01-15
+institution: University of Example
+email: john@example.com
+```
+
+**Features:**
+- Displays author information in a beautiful header format
+- Supports multiple metadata fields (author, date, institution, email, editor)
+- Automatically formatted with professional typography
+- Responsive design for mobile devices
+
+**Supported Fields:**
+- `author`: Author name
+- `date`: Publication or creation date
+- `institution`: Affiliation or organization
+- `email`: Contact email address
+- `editor`: Editor name (displayed as "Edited by...")
 
 #### Text Decoration
 ```markdown
@@ -139,6 +153,23 @@ https://example.com
 **Result: Below is an example of actually displayed image.**
 ![Sample image caption](https://tetsuakibaba.jp/assets/images/research/2021rc.png)
 
+#### Tables
+```markdown
+| Header 1 | Header 2 |
+|----------|----------|
+| Cell 1   | Cell 2   |
+| Cell 3   | Cell 4   |
+``` 
+| Header 1 | Header 2 |
+|----------|----------|
+| Cell 1   | Cell 2   |
+| Cell 3   | Cell 4   |
+**Features:**
+- Supports basic table syntax with `|` and `-`
+- Automatically detects table headers and aligns them
+- Supports multi-line cells
+- Supports empty cells
+
 #### GitHub-style Alerts
 ```markdown
 > [!NOTE]
@@ -197,6 +228,28 @@ function hello() {
 > This is a regular blockquote.
 ```
 > This is a regular blockquote.
+
+#### Tables
+```markdown
+| Header 1 | Header 2 | Header 3 |
+|----------|----------|----------|
+| Cell 1   | Cell 2   | Cell 3   |
+| Cell 4   | Cell 5   | Cell 6   |
+```
+
+**Features:**
+- Standard Markdown table syntax support
+- Automatic header detection with separator rows
+- Responsive design with horizontal scrolling on mobile
+- Beautiful styling with hover effects
+- Support for inline formatting within cells (bold, italic, code)
+
+**Example Result:**
+| Name | Age | Occupation |
+|------|-----|------------|
+| John Doe | 28 | Engineer |
+| Jane Smith | 32 | Designer |
+| Bob Johnson | 25 | Marketer |
 
 ## Customization
 
@@ -257,7 +310,8 @@ This project aims to implement a simple and lightweight Markdown parser with ele
 
 ### Future Improvements
 - [ ] Syntax highlighting feature
-- [ ] Table syntax support
+- [x] ~~Table syntax support~~ (Completed)
+- [x] ~~Document metadata support~~ (Completed)
 - [ ] Mathematical notation support
 - [ ] Dark mode support
 - [ ] Print style optimization
