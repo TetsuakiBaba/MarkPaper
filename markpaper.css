@@ -3,7 +3,6 @@
    ============================================ */
 :root {
     --text-color: #0a0a0a;
-    ;
     --background-color: #FFFFFF;
     --accent-color: #1d7484;
     --accent-hover-color: #982c61;
@@ -498,6 +497,13 @@ blockquote p {
 
 blockquote p:last-child {
     margin-bottom: 0;
+}
+
+/* 引用文内では最初の文字を大きくしない */
+blockquote p:first-of-type:first-letter {
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: inherit;
 }
 
 /* ============================================

@@ -122,7 +122,7 @@
       if (inBlockquote) {
         html += '<blockquote>';
 
-        // 空行を段落区切りとして処理
+        // 各行を独立した段落として処理（空行で段落を分ける）
         let paragraphs = [];
         let currentParagraph = [];
 
@@ -130,7 +130,7 @@
           if (content === '') {
             // 空行の場合、現在の段落を保存
             if (currentParagraph.length > 0) {
-              paragraphs.push(currentParagraph.join(' '));
+              paragraphs.push(currentParagraph);
               currentParagraph = [];
             }
           } else {
@@ -141,13 +141,16 @@
 
         // 最後の段落を追加
         if (currentParagraph.length > 0) {
-          paragraphs.push(currentParagraph.join(' '));
+          paragraphs.push(currentParagraph);
         }
 
-        // 段落をHTMLとして出力
-        paragraphs.forEach(paragraph => {
-          if (paragraph.trim()) {
-            html += `<p>${escapeInline(paragraph, currentSectionFootnotes, footnotes)}</p>`;
+        // 段落をHTMLとして出力（各行を個別にescapeInlineしてからbrで結合）
+        paragraphs.forEach(paragraphLines => {
+          if (paragraphLines.length > 0) {
+            const escapedLines = paragraphLines.map(line => 
+              escapeInline(line.trim(), currentSectionFootnotes, footnotes)
+            );
+            html += `<p>${escapedLines.join('<br>')}</p>`;
           }
         });
 
@@ -252,8 +255,12 @@
         } else if (inAlert) {
           // アラート内の空行は改行として追加
           alertContent.push('');
+        } else if (inBlockquote) {
+          // blockquote内の空行は改行として追加
+          blockquoteContent.push('');
         } else {
           closeList();
+          closeBlockquote(); // 空行でblockquoteも閉じる
           closeTable(); // 空行でテーブルも閉じる
         }
         return;
@@ -426,6 +433,7 @@
       // 箇条書き
       else if (line.startsWith('* ')) {
         // 番号なしリスト (ul)
+        closeBlockquote(); // リスト開始時にblockquoteを閉じる
         if (inOList) {
           html += '</ol>\n';
           inOList = false;
@@ -438,6 +446,7 @@
       }
       else if (line.startsWith('- ')) {
         // 番号ありリスト (ol)
+        closeBlockquote(); // リスト開始時にblockquoteを閉じる
         if (inUList) {
           html += '</ul>\n';
           inUList = false;
