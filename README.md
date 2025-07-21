@@ -94,12 +94,30 @@ email: john@example.com
 
 #### Lists
 ```markdown
-- Unordered list item 1
-- Unordered list item 2
+* Unordered list item 1
+* Unordered list item 2
 
-* Ordered list item 1
-* Ordered list item 2
+- Ordered list item 1
+  - Ordered item 1-1
+  - Ordered item 1-2
+    - Deep nested item (no number)
+- Ordered list item 2
+  - Ordered item 2-1
+  - Ordered item 2-2
 ```
+
+* Unordered list item 1
+  * Unordered list item 1-2
+    * Unordered list item 1-2-3
+* Unordered list item 2
+
+- Ordered list item 1
+  - Ordered item 1-1
+  - Ordered item 1-2
+    - Deep nested item (no number)
+- Ordered list item 2
+  - Ordered item 2-1
+  - Ordered item 2-2
 
 ### Extended Syntax
 
@@ -136,22 +154,25 @@ https://example.com
 #### Image Display
 ```markdown
 ![Caption text](image.jpg)
-![](image.jpg)
+![](image.jpg){width="50%"}
 ```
 
 **Features:**
 - Automatic figure numbering when caption is specified (Figure 1, Figure 2...)
-- Normal image display when no caption
+- Width specification with `{width=...}` (e.g., `50%`, `300px`)
 - Responsive design (auto-resize according to screen width)
 - Center-aligned display with rounded corners and borders
 
 **Example:**
 ```markdown
 ![Sample image caption](https://tetsuakibaba.jp/assets/images/research/2021rc.png)
+![](https://tetsuakibaba.jp/assets/images/research/2021rc.png){width="50%"}
 ```
 
 **Result: Below is an example of actually displayed image.**
 ![Sample image caption](https://tetsuakibaba.jp/assets/images/research/2021rc.png)
+
+![](https://tetsuakibaba.jp/assets/images/research/2021rc.png){width="50%"}
 
 #### Tables
 ```markdown
@@ -188,6 +209,22 @@ https://example.com
 > [!CAUTION]
 > This requires caution.
 ```
+
+> [!NOTE]
+> This is an information note.
+> Can be written in multiple lines.
+
+> [!WARNING]
+> This is a warning message.
+
+> [!IMPORTANT]
+> This is important information.
+
+> [!TIP]
+> This is a helpful tip.
+
+> [!CAUTION]
+> This requires caution.
 
 **Features:**
 - 5 types of alerts (NOTE, WARNING, IMPORTANT, TIP, CAUTION)
@@ -229,13 +266,6 @@ function hello() {
 ```
 > This is a regular blockquote.
 
-#### Tables
-```markdown
-| Header 1 | Header 2 | Header 3 |
-|----------|----------|----------|
-| Cell 1   | Cell 2   | Cell 3   |
-| Cell 4   | Cell 5   | Cell 6   |
-```
 
 **Features:**
 - Standard Markdown table syntax support

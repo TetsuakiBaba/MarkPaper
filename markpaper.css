@@ -2,14 +2,74 @@
    配色パラメータ設定（カスタマイズ可能）
    ============================================ */
 :root {
-    --text-color: #0a0a0a;
+    /* 基本色 */
+    --text-color: #212529;
+    /* 少し柔らかい黒 */
     --background-color: #FFFFFF;
-    --accent-color: #1d7484;
-    --accent-hover-color: #982c61;
-    --accent-visited-color: #144f5a;
-    --border-color: #f1f1f1;
-    --code-background: #f1f1f1;
-    --blockquote-border: #1d7484;
+    --accent-color: #4a6a70;
+    /* 彩度を落としたシアン */
+    --accent-hover-color: #81536b;
+    /* 彩度を落としたマゼンタ */
+    --accent-visited-color: #3a5055;
+    /* 彩度を落としたダークシアン */
+    --border-color: #e9ecef;
+    /* 少し濃いめのボーダー */
+    --code-background: #f8f9fa;
+    /* 明るいグレー */
+    --blockquote-border: #4a6a70;
+    /* アクセントカラーと統一 */
+
+    /* セマンティック色 */
+    --secondary-text-color: #6c757d;
+    --muted-text-color: #868e96;
+    --light-gray-color: #f8f9fa;
+    --medium-gray-color: #e9ecef;
+    --dark-gray-color: #dee2e6;
+    --button-text-color: #495057;
+
+    /* 影・透明度関連 */
+    --shadow-light: rgba(0, 0, 0, 0.07);
+    --shadow-medium: rgba(0, 0, 0, 0.05);
+    --overlay-dark: rgba(0, 0, 0, 0.5);
+    --strikethrough-color: rgba(108, 117, 125, 0.6);
+    --figcaption-color: rgba(108, 117, 125, 0.8);
+    --highlight-background: rgba(255, 235, 59, 0.3);
+    --table-header-bg: rgba(74, 106, 112, 0.05);
+
+    /* ハンバーガーメニュー関連 */
+    --menu-background: rgba(255, 255, 255, 0.9);
+    --menu-background-active: rgba(255, 255, 255, 0.95);
+    --menu-border: rgba(108, 117, 125, 0.4);
+    --menu-border-hover: rgba(108, 117, 125, 0.6);
+    --menu-line-color: rgba(108, 117, 125, 0.6);
+
+    /* GitHubアラート用色（彩度調整版） */
+    --alert-note-border: #5889b7;
+    --alert-note-bg: #eef5fc;
+    --alert-warning-border: #b78d48;
+    --alert-warning-bg: #fcf8e3;
+    --alert-important-border: #8a6d3b;
+    --alert-important-bg: #fdf7f7;
+    --alert-tip-border: #5f9a6f;
+    --alert-tip-bg: #eefaf0;
+    --alert-caution-border: #b85c5c;
+    --alert-caution-bg: #fceeee;
+
+    /* コードハイライト用色（彩度調整版） */
+    --code-text-color: #24292f;
+    --code-border-color: #d1d9e0;
+    --code-keyword-color: #c64351;
+    --code-string-color: #032f62;
+    --code-comment-color: #6a737d;
+    --code-number-color: #005cc5;
+
+    /* コピーボタン関連 */
+    --copy-btn-bg: #e9ecef;
+    --copy-btn-border: #ced4da;
+    --copy-btn-hover-bg: #dee2e6;
+    --copy-btn-success-bg: #5f9a6f;
+    /* tipカラーと統一 */
+    --copy-btn-success-color: white;
 }
 
 /* ============================================
@@ -162,20 +222,20 @@ h1 {
 
 .document-header .date {
     font-size: 0.9em;
-    color: #666;
+    color: var(--secondary-text-color);
     margin-bottom: calc(var(--baseline-unit) * 0.125);
 }
 
 .document-header .institution {
     font-size: 0.9em;
-    color: #666;
+    color: var(--secondary-text-color);
     font-style: italic;
     margin-bottom: calc(var(--baseline-unit) * 0.125);
 }
 
 .document-header .editor {
     font-size: 0.85em;
-    color: #888;
+    color: var(--muted-text-color);
     font-style: italic;
 }
 
@@ -347,13 +407,13 @@ u {
 s,
 del {
     text-decoration: line-through;
-    text-decoration-color: rgba(74, 74, 74, 0.6);
+    text-decoration-color: var(--strikethrough-color);
     text-decoration-thickness: 1px;
 }
 
 /* マーク（ハイライト）の改善 */
 mark {
-    background-color: rgba(255, 235, 59, 0.3);
+    background-color: var(--highlight-background);
     padding: 0.1em 0.2em;
     border-radius: 2px;
 }
@@ -427,7 +487,7 @@ a:hover {
 ul,
 ol {
     margin-left: clamp(0.5rem, 2vw, 1rem);
-    padding-left: clamp(1rem, 3vw, 1.4em);
+    padding-left: clamp(1.5rem, 3vw, 2em);
     padding-right: 0;
     margin-top: 0;
     margin-bottom: var(--baseline-unit);
@@ -440,6 +500,12 @@ ol {
     /* 文字組み設定を継承 */
     font-feature-settings: "palt" 1, "pkna" 1;
     letter-spacing: 0.025em;
+}
+
+/* unordered listは標準の箇条書きスタイルを維持 */
+ul {
+    list-style-type: disc;
+    list-style-position: outside;
 }
 
 li {
@@ -457,7 +523,7 @@ li ol {
     margin-top: calc(var(--baseline-unit) * 0.25);
     margin-bottom: calc(var(--baseline-unit) * 0.25);
     margin-left: 0;
-    padding-left: 1.5em;
+    padding-left: clamp(1.5rem, 3vw, 2em);
     font-size: inherit;
     /* 親のサイズを維持 */
 }
@@ -467,24 +533,102 @@ li li {
     margin-bottom: calc(var(--baseline-unit) * 0.25);
 }
 
-/* 3レベル以上のネスト対応 */
-li ul ul,
-li ul ol,
-li ol ul,
-li ol ol {
-    padding-left: 1.2em;
+/* CSS countersによる階層リスト表示 */
+ol {
+    list-style: none;
+    list-style-position: outside;
+    counter-reset: level1;
 }
 
-/* 4レベル以上のネスト対応 */
-li ul ul ul,
-li ul ul ol,
-li ul ol ul,
-li ul ol ol,
-li ol ul ul,
-li ol ul ol,
-li ol ol ul,
-li ol ol ol {
-    padding-left: 1em;
+ol li {
+    counter-increment: level1;
+    position: relative;
+}
+
+ol li::before {
+    content: counter(level1) "";
+    font-weight: 600;
+    color: var(--text-color);
+    position: absolute;
+    left: -2.5em;
+    min-width: 2em;
+    text-align: right;
+}
+
+/* 2階層目 */
+ol ol {
+    counter-reset: level2;
+}
+
+ol ol li {
+    counter-increment: level2;
+}
+
+ol ol li::before {
+    content: counter(level1) "." counter(level2) " ";
+    font-weight: 600;
+    color: var(--text-color);
+    position: absolute;
+    left: -3.5em;
+    min-width: 3em;
+    text-align: right;
+}
+
+/* 3階層目 */
+ol ol ol {
+    counter-reset: level3;
+}
+
+ol ol ol li {
+    counter-increment: level3;
+}
+
+ol ol ol li::before {
+    content: counter(level1) "." counter(level2) "." counter(level3) " ";
+    font-weight: 600;
+    color: var(--text-color);
+    position: absolute;
+    left: -4.5em;
+    min-width: 4em;
+    text-align: right;
+}
+
+/* 4階層目 */
+ol ol ol ol {
+    counter-reset: level4;
+}
+
+ol ol ol ol li {
+    counter-increment: level4;
+}
+
+ol ol ol ol li::before {
+    content: counter(level1) "." counter(level2) "." counter(level3) "." counter(level4) " ";
+    font-weight: 600;
+    color: var(--text-color);
+    position: absolute;
+    left: -5.5em;
+    min-width: 5em;
+    text-align: right;
+}
+
+/* 5階層目 */
+ol ol ol ol ol {
+    counter-reset: level5;
+}
+
+ol ol ol ol ol li {
+    counter-increment: level5;
+}
+
+ol ol ol ol ol li::before {
+    content: counter(level1) "." counter(level2) "." counter(level3) "." counter(level4) "." counter(level5) " ";
+    font-weight: 600;
+    color: var(--text-color);
+    position: absolute;
+    left: -6.5em;
+    min-width: 6em;
+    text-align: right;
 }
 
 
@@ -560,14 +704,14 @@ figure {
 
 figure img {
     margin-bottom: calc(var(--baseline-unit) * 0.125);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px var(--shadow-light);
     border-radius: 4px;
 }
 
 figcaption {
     font-size: 0.875em;
     line-height: 1.4;
-    color: rgba(74, 74, 74, 0.8);
+    color: var(--figcaption-color);
     font-style: italic;
 
     /* キャプションの文字組み */
@@ -619,7 +763,7 @@ pre {
 
     /* 境界の調整 */
     border-radius: 4px;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--shadow-light);
 }
 
 code,
@@ -682,7 +826,7 @@ th {
 th {
     font-weight: 600;
     border-bottom: 2px solid var(--accent-color);
-    background-color: rgba(29, 116, 132, 0.05);
+    background-color: var(--table-header-bg);
 }
 
 /* 数値列の右揃え（.number クラス使用時） */
@@ -801,8 +945,8 @@ fieldset {
     top: 20px;
     right: 20px;
     z-index: 100;
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(74, 74, 74, 0.4);
+    background: var(--menu-background);
+    border: 1px solid var(--menu-border);
     border-radius: 50%;
     width: 50px;
     height: 50px;
@@ -813,25 +957,25 @@ fieldset {
     align-items: center;
     gap: 5px;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px var(--shadow-light);
 }
 
 .hamburger-btn:hover {
     background: var(--border-color);
-    border-color: rgba(74, 74, 74, 0.6);
+    border-color: var(--menu-border-hover);
 }
 
 /* メニューが開いているときのハンバーガーボタンの調整 */
 .hamburger-btn.active {
     z-index: 250;
-    background: rgba(255, 255, 255, 0.95);
+    background: var(--menu-background-active);
 }
 
 .hamburger-btn span {
     display: block;
     width: 25px;
     height: 2px;
-    background: rgba(74, 74, 74, 0.6);
+    background: var(--menu-line-color);
     transition: all 0.3s ease;
     border-radius: 2px;
 }
@@ -865,7 +1009,7 @@ fieldset {
     height: 100vh;
     background: var(--background-color);
     border-left: 1px solid var(--border-color);
-    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: -2px 0 10px var(--shadow-light);
     z-index: 200;
     transition: right 0.3s ease;
     overflow-y: auto;
@@ -932,7 +1076,7 @@ fieldset {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    background: var(--overlay-dark);
     z-index: 150;
     opacity: 0;
     visibility: hidden;
@@ -967,8 +1111,8 @@ fieldset {
     padding: var(--baseline-unit);
     border-radius: 6px;
     border-left: 4px solid;
-    background-color: #f8f9fa;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    background-color: var(--light-gray-color);
+    box-shadow: 0 2px 8px var(--shadow-medium);
 
     /* アラート内の文字組み */
     font-family: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "HG Mincho E", "MS PMincho", "MS Mincho", Georgia, "Times New Roman", Times, serif;
@@ -977,18 +1121,10 @@ fieldset {
 }
 
 .alert-header {
-    display: flex;
-    align-items: center;
     margin-bottom: calc(var(--baseline-unit) * 0.5);
     font-weight: 600;
     font-size: 1.05rem;
     letter-spacing: 0.02em;
-}
-
-.alert-icon {
-    margin-right: 0.6rem;
-    font-size: 1.2rem;
-    line-height: 1;
 }
 
 .alert-title {
@@ -1034,48 +1170,48 @@ fieldset {
 
 /* アラートタイプ別のスタイル */
 .alert-note {
-    border-left-color: #0969da;
-    background-color: #ddf4ff;
+    border-left-color: var(--alert-note-border);
+    background-color: var(--light-gray-color);
 }
 
 .alert-note .alert-title {
-    color: #0969da;
+    color: var(--alert-note-border);
 }
 
 .alert-warning {
-    border-left-color: #9a6700;
-    background-color: #fff8c5;
+    border-left-color: var(--alert-warning-border);
+    background-color: var(--light-gray-color);
 }
 
 .alert-warning .alert-title {
-    color: #9a6700;
+    color: var(--alert-warning-border);
 }
 
 .alert-important {
-    border-left-color: #8250df;
-    background-color: #fbf0ff;
+    border-left-color: var(--alert-important-border);
+    background-color: var(--light-gray-color);
 }
 
 .alert-important .alert-title {
-    color: #8250df;
+    color: var(--alert-important-border);
 }
 
 .alert-tip {
-    border-left-color: #1a7f37;
-    background-color: #dcffe4;
+    border-left-color: var(--alert-tip-border);
+    background-color: var(--light-gray-color);
 }
 
 .alert-tip .alert-title {
-    color: #1a7f37;
+    color: var(--alert-tip-border);
 }
 
 .alert-caution {
-    border-left-color: #cf222e;
-    background-color: #ffebee;
+    border-left-color: var(--alert-caution-border);
+    background-color: var(--light-gray-color);
 }
 
 .alert-caution .alert-title {
-    color: #cf222e;
+    color: var(--alert-caution-border);
 }
 
 /* レスポンシブ対応 */
@@ -1090,10 +1226,6 @@ fieldset {
         font-size: 1rem;
         margin-bottom: 0.5rem;
     }
-
-    .alert-icon {
-        font-size: 1.1rem;
-    }
 }
 
 /* ============================================
@@ -1106,7 +1238,7 @@ code {
     border-radius: 3px;
     font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
     font-size: 0.9em;
-    color: #24292f;
+    color: var(--code-text-color);
     white-space: nowrap;
 }
 
@@ -1117,7 +1249,7 @@ pre {
     padding: 1rem;
     overflow-x: auto;
     margin: 1.5rem 0;
-    border: 1px solid #d1d9e0;
+    border: 1px solid var(--code-border-color);
 }
 
 pre code {
@@ -1126,32 +1258,32 @@ pre code {
     border-radius: 0;
     font-size: 0.875rem;
     white-space: pre;
-    color: #24292f;
+    color: var(--code-text-color);
     line-height: 1.45;
 }
 
 /* 言語ラベル付きコードブロック */
 pre code[class*="language-"] {
-    color: #24292f;
+    color: var(--code-text-color);
 }
 
 /* コードブロック内のシンタックスハイライト風の基本スタイル */
 pre code .keyword {
-    color: #d73a49;
+    color: var(--code-keyword-color);
     font-weight: bold;
 }
 
 pre code .string {
-    color: #032f62;
+    color: var(--code-string-color);
 }
 
 pre code .comment {
-    color: #6a737d;
+    color: var(--code-comment-color);
     font-style: italic;
 }
 
 pre code .number {
-    color: #005cc5;
+    color: var(--code-number-color);
 }
 
 /* レスポンシブ対応 */
@@ -1188,7 +1320,7 @@ table {
 }
 
 table thead {
-    background-color: #f8f9fa;
+    background-color: var(--light-gray-color);
 }
 
 table th {
@@ -1221,7 +1353,7 @@ table tbody tr:last-child td {
 }
 
 table tbody tr:hover {
-    background-color: #f8f9fa;
+    background-color: var(--light-gray-color);
 }
 
 /* テーブル内のコード */
@@ -1264,7 +1396,7 @@ table code {
 
 .markpaper-footer p {
     font-size: 0.8rem;
-    color: #888;
+    color: var(--muted-text-color);
     margin: 0;
     font-style: italic;
     font-family: "Hiragino Sans", "Yu Gothic", YuGothic, Meiryo, sans-serif;
@@ -1298,4 +1430,66 @@ table code {
         font-size: 0.75rem;
         padding: 0 1rem;
     }
+}
+
+/* ============================================
+   コードブロックのコピーボタン
+   ============================================ */
+.code-block-container {
+    position: relative;
+    margin: 1.5rem 0;
+}
+
+.copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: var(--copy-btn-bg);
+    border: 1px solid var(--copy-btn-border);
+    border-radius: 4px;
+    padding: 5px 10px;
+    font-size: 0.8rem;
+    font-family: "Hiragino Sans", "Yu Gothic", YuGothic, Meiryo, sans-serif;
+    color: var(--button-text-color);
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+    z-index: 10;
+}
+
+.code-block-container:hover .copy-btn {
+    opacity: 1;
+}
+
+.copy-btn:hover {
+    background-color: var(--copy-btn-hover-bg);
+}
+
+.copy-btn.copied {
+    background-color: var(--copy-btn-success-bg);
+    color: var(--copy-btn-success-color);
+    border-color: var(--copy-btn-success-bg);
+}
+
+.code-block-container pre {
+    margin: 0;
+}
+
+/* ============================================
+   チェックボックス（タスクリスト）のスタイル
+   ============================================ */
+.task-list-item {
+    list-style-type: none;
+    margin-left: -1.5em;
+    /* 元のリストマーカー分を調整 */
+}
+
+.task-list-item input[type="checkbox"] {
+    margin-right: 0.5em;
+    vertical-align: middle;
+    width: 1.2em;
+    height: 1.2em;
+    accent-color: var(--accent-color);
+    border: 1px solid var(--border-color);
+    background-color: var(--background-color);
 }

@@ -27,6 +27,7 @@
 
     // リストの入れ子管理用の変数
     let listStack = [];    // スタック形式でリストレベルを管理 [{type: 'ul', level: 0}, {type: 'ol', level: 2}, ...]
+    let orderNumbers = []; // ordered listの番号管理用 [1, 1, 2, ...] (レベルごとの番号)
 
     // 章番号管理用の変数
     let chapterNum = 0;  // ## の番号
@@ -65,6 +66,7 @@
       }
       inUList = false;
       inOList = false;
+      orderNumbers = []; // 番号もリセット
     };
 
     // リストレベルの管理とHTMLの生成
@@ -73,17 +75,22 @@
       let match, indent, content, level;
 
       if (listType === 'ul') {
-        // 箇条書きリスト（* または -）
-        match = line.match(/^(\s*)[*-]\s+(.*)$/);
+        // 箇条書きリスト（* のみ）
+        match = line.match(/^(\s*)\*\s+(.*)$/);
+        if (match) {
+          content = match[2];
+        }
       } else {
-        // 番号付きリスト（1. など）
-        match = line.match(/^(\s*)\d+\.\s+(.*)$/);
+        // 番号付きリスト（1. または - ）
+        match = line.match(/^(\s*)(-|\d+\.)\s+(.*)$/);
+        if (match) {
+          content = match[3]; // 番号付きリストの場合、コンテンツは3番目のグループ
+        }
       }
 
       if (!match) return false;
 
       indent = match[1];
-      content = match[2];
       level = Math.floor(indent.length / 2);
 
       // 現在のリストスタックと新しいレベルを比較
@@ -91,6 +98,10 @@
         // 深いレベルのリストを閉じる
         const closingItem = listStack.pop();
         html += `</${closingItem.type}>\n`;
+        // 番号配列も調整
+        if (orderNumbers.length > level + 1) {
+          orderNumbers = orderNumbers.slice(0, level + 1);
+        }
       }
 
       // 新しいリストレベルを開始する必要がある場合
@@ -101,6 +112,11 @@
           inUList = true;
         } else {
           inOList = true;
+          // ordered listの場合、新しいレベルの番号を初期化
+          while (orderNumbers.length <= level) {
+            orderNumbers.push(0);
+          }
+          orderNumbers[level] = 1;
         }
       }
       // 既存のリストのタイプが異なる場合、切り替える
@@ -115,18 +131,38 @@
         } else {
           inOList = true;
           inUList = false;
+          // ordered listの場合、番号を初期化
+          while (orderNumbers.length <= level) {
+            orderNumbers.push(0);
+          }
+          orderNumbers[level] = 1;
         }
+      } else if (listType === 'ol' && listStack.length === level + 1) {
+        // 同じレベルのordered listの場合、番号を増やす
+        orderNumbers[level] = (orderNumbers[level] || 0) + 1;
       }
 
-      html += `<li>${escapeInline(content, currentSectionFootnotes, footnotes)}</li>\n`;
-      return true;
-    };
+      // チェックボックスの処理
+      const checkboxMatch = content.match(/^\[([xX ]?)\]\s+(.*)$/);
+      let liClass = '';
+      let liContent;
 
-    const closeAlert = () => {
+      if (checkboxMatch) {
+        const checked = checkboxMatch[1].toLowerCase() === 'x' ? ' checked' : '';
+        const text = checkboxMatch[2];
+        liClass = ' class="task-list-item"';
+        liContent = `<input type="checkbox" disabled${checked}> ${escapeInline(text, currentSectionFootnotes, footnotes)}`;
+      } else {
+        liContent = escapeInline(content, currentSectionFootnotes, footnotes);
+      }
+
+      html += `<li${liClass}>${liContent}</li>\n`;
+
+      return true;
+    }; const closeAlert = () => {
       if (inAlert) {
         html += `<div class="alert alert-${alertType}">`;
         html += `<div class="alert-header">`;
-        html += `<span class="alert-icon">${getAlertIcon(alertType)}</span>`;
         html += `<span class="alert-title">${getAlertTitle(alertType)}</span>`;
         html += `</div>`;
         html += `<div class="alert-content">`;
@@ -255,12 +291,12 @@
     const closeCodeBlock = () => {
       if (inCodeBlock) {
         const languageClass = codeLanguage ? ` class="language-${codeLanguage}"` : '';
-        html += `<pre><code${languageClass}>`;
+        html += `<div class="code-block-container"><button class="copy-btn">Copy</button><pre><code${languageClass}>`;
         codeContent.forEach((line, index) => {
           if (index > 0) html += '\n';
           html += escapeHTML(line);
         });
-        html += `</code></pre>\n`;
+        html += `</code></pre></div>\n`;
 
         inCodeBlock = false;
         codeLanguage = '';
@@ -360,10 +396,10 @@
       }
 
       // インデントコードブロック（4スペースまたはタブ）ただしリスト項目は除外
-      if (line.match(/^(    |\t)/) && !inAlert && !line.match(/^\s*[*-]\s+/) && !line.match(/^\s*\d+\.\s+/)) {
+      if (line.match(/^(    |\t)/) && !inAlert && !line.match(/^\s*\*\s+/) && !line.match(/^\s*-\s+/) && !line.match(/^\s*\d+\.\s+/)) {
         closeList();
         const codeText = line.replace(/^(    |\t)/, '');
-        html += `<pre><code>${escapeHTML(codeText)}</code></pre>\n`;
+        html += `<div class="code-block-container"><button class="copy-btn">Copy</button><pre><code>${escapeHTML(codeText)}</code></pre></div>\n`;
         return;
       }
 
@@ -496,8 +532,10 @@
         let listType;
         if (line.match(/^\s*\d+\.\s+/)) {
           listType = 'ol';
+        } else if (line.match(/^\s*-\s+/)) {
+          listType = 'ol'; // - で始まる行をordered listとして扱う
         } else {
-          listType = 'ul';
+          listType = 'ul'; // * で始まる行をunordered listとして扱う
         }
 
         handleList(line, listType);
@@ -560,25 +598,36 @@
         }
       }
       // 画像記法の処理（独立した行として）
-      else if (line.match(/^!\[([^\]]*)\]\(([^)]+)\)$/)) {
+      else if (line.match(/^!\[([^\]]*)\]\(([^)]+)\)/)) {
         closeList();
         closeAlert();
         closeBlockquote();
-        const match = line.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
+        const match = line.match(/^!\[([^\]]*)\]\(([^)]+)\)\s*(?:\{([^}]+)\})?$/);
+        if (!match) {
+          html += `<p>${escapeInline(line, currentSectionFootnotes, footnotes)}</p>\n`;
+          return;
+        }
+
         const alt = match[1];
         const src = match[2];
+        const attrs = match[3];
 
+        let style = '';
+        if (attrs) {
+          const widthMatch = attrs.match(/width\s*=\s*"?([^"}]+)"?/);
+          if (widthMatch && widthMatch[1]) {
+            style = ` style="width: ${escapeHTML(widthMatch[1])};"`;
+          }
+        }
+
+        html += `<figure class="image-figure">`;
+        html += `<img src="${src}" alt="${escapeHTML(alt)}"${style} />`;
         if (alt && alt.trim()) {
           // キャプション付き画像
           globalFigureNum++;
-          html += `<figure class="image-figure">
-            <img src="${src}" alt="${escapeHTML(alt)}" />
-            <figcaption>Fig ${globalFigureNum} ${escapeHTML(alt)}</figcaption>
-          </figure>\n`;
-        } else {
-          // キャプションなし画像
-          html += `<img src="${src}" alt="" />\n`;
+          html += `<figcaption>Fig ${globalFigureNum} ${escapeHTML(alt)}</figcaption>`;
         }
+        html += `</figure>\n`;
       }
       // アラート以外の行が来たらアラートを閉じる
       else if (inAlert) {
@@ -622,17 +671,6 @@
   }
 
   // --- GitHubアラートのヘルパー関数 ----------------------------
-  function getAlertIcon(type) {
-    const icons = {
-      'note': '💡',
-      'warning': '⚠️',
-      'important': '❗',
-      'tip': '💡',
-      'caution': '🚨'
-    };
-    return icons[type] || '📝';
-  }
-
   function getAlertTitle(type) {
     const titles = {
       'note': 'Note',
@@ -655,25 +693,34 @@
     // *italic*
     const italic = bold.replace(/\*(.+?)\*/g, '<em>$1</em>');
 
+    // ~~strikethrough~~
+    const strikethrough = italic.replace(/~~(.+?)~~/g, '<s>$1</s>');
+
     // インラインコード `code` → <code>code</code>
-    const inlineCode = italic.replace(/`([^`]+)`/g, '<code>$1</code>');
+    const inlineCode = strikethrough.replace(/`([^`]+)`/g, '<code>$1</code>');
 
     // テキストリンクの処理 [テキスト](url) → <a href="url">テキスト</a>（脚注よりも先に処理）
     const linkProcessed = inlineCode.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
 
     // 画像の処理 ![alt](src) → <img src="src" alt="alt"> またはキャプション付き画像
-    const imageProcessed = linkProcessed.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, src) => {
+    const imageProcessed = linkProcessed.replace(/!\[([^\]]*)\]\(([^)]+)\)\s*(?:\{([^}]+)\})?/g, (match, alt, src, attrs) => {
+      let style = '';
+      if (attrs) {
+        const widthMatch = attrs.match(/width\s*=\s*"?([^"}]+)"?/);
+        if (widthMatch && widthMatch[1]) {
+          style = ` style="width: ${escapeHTML(widthMatch[1])};"`;
+        }
+      }
+
+      let figureHtml = `<figure class="image-figure">`;
+      figureHtml += `<img src="${src}" alt="${escapeHTML(alt)}"${style} />`;
       if (alt && alt.trim()) {
         // キャプション付き画像
         globalFigureNum++;
-        return `<figure class="image-figure">
-          <img src="${src}" alt="${escapeHTML(alt)}" />
-          <figcaption>Fig ${globalFigureNum} ${escapeHTML(alt)}</figcaption>
-        </figure>`;
-      } else {
-        // キャプションなし画像
-        return `<img src="${src}" alt="" />`;
+        figureHtml += `<figcaption>Fig ${globalFigureNum} ${escapeHTML(alt)}</figcaption>`;
       }
+      figureHtml += `</figure>`;
+      return figureHtml;
     });
 
     // 脚注の処理 [^1] → <sup><a href="#footnote-1">1</a></sup>
@@ -924,6 +971,9 @@
 
         // スクロールスパイを初期化
         initScrollSpy();
+
+        // コードブロックにコピーボタン機能を追加
+        addCopyButtonFunctionality();
       })
       .catch((err) => {
         console.error('Error loading file:', err); // デバッグ用
@@ -956,5 +1006,33 @@
         const html = mdToHTML(errorMessage.trim());
         document.getElementById(targetId).innerHTML = html;
       });
+  }
+
+  // --- コピーボタン機能を追加 ----------------------------------
+  function addCopyButtonFunctionality() {
+    const allCodeContainers = document.querySelectorAll('.code-block-container');
+    console.log('Found code containers:', allCodeContainers.length); // デバッグ用
+    allCodeContainers.forEach(container => {
+      const button = container.querySelector('.copy-btn');
+      const codeElement = container.querySelector('pre code');
+      console.log('Button found:', !!button, 'Code found:', !!codeElement); // デバッグ用
+      if (button && codeElement) {
+        button.addEventListener('click', () => {
+          console.log('Copy button clicked'); // デバッグ用
+          const codeToCopy = codeElement.innerText;
+          navigator.clipboard.writeText(codeToCopy).then(() => {
+            button.textContent = 'Copied!';
+            button.classList.add('copied');
+            setTimeout(() => {
+              button.textContent = 'Copy';
+              button.classList.remove('copied');
+            }, 2000);
+          }).catch(err => {
+            console.error('Failed to copy text: ', err);
+            button.textContent = 'Error';
+          });
+        });
+      }
+    });
   }
 })();
