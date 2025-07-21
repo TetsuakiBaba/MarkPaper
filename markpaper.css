@@ -2,6 +2,13 @@
    配色パラメータ設定（カスタマイズ可能）
    ============================================ */
 :root {
+    /* フォント設定（カスタマイズ可能） */
+    --font-serif: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "HG Mincho E", "MS PMincho", "MS Mincho", Georgia, "Times New Roman", Times, serif;
+    --font-sans-serif: "Hiragino Sans", "Yu Gothic", "YuGothic", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --font-monospace: Consolas, Monaco, "Courier New", monospace;
+    --font-system: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-ui-extended: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
     /* 基本色 */
     --text-color: #212529;
     /* 少し柔らかい黒 */
@@ -78,7 +85,7 @@
 html {
     /* レスポンシブなベースフォントサイズ設定 */
     font-size: clamp(15px, 3vw, 16px);
-    font-family: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "HG Mincho E", "MS PMincho", "MS Mincho", Georgia, "Times New Roman", Times, serif;
+    font-family: var(--font-serif);
     /* 文字レンダリングの最適化 */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -97,7 +104,7 @@ body {
     color: var(--text-color);
     background-color: var(--background-color);
     padding: 0;
-    font-family: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "HG Mincho E", "MS PMincho", "MS Mincho", Georgia, "Times New Roman", Times, serif;
+    font-family: var(--font-serif);
     /* 書籍的な文字組み設定 */
     font-feature-settings: "palt" 1, "pkna" 1;
     /* プロポーショナル文字詰め */
@@ -169,7 +176,7 @@ h5,
 h6 {
     line-height: 1.2;
     /* 見出しは詰めた行間 */
-    font-family: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "HG Mincho E", "MS PMincho", "MS Mincho", Georgia, "Times New Roman", Times, serif;
+    font-family: var(--font-serif);
     font-weight: 700;
     /* 垂直リズムに基づいた余白設定 */
     margin-top: calc(var(--baseline-unit) * 1.5);
@@ -217,7 +224,7 @@ h1 {
     font-weight: 500;
     color: var(--text-color);
     margin-bottom: calc(var(--baseline-unit) * 0.25);
-    font-family: "Hiragino Sans", "Yu Gothic", YuGothic, Meiryo, sans-serif;
+    font-family: var(--font-sans-serif);
 }
 
 .document-header .date {
@@ -333,7 +340,7 @@ p {
     line-height: 1.75;
     /* 読みやすい行間 */
     font-size: clamp(1rem, 2.5vw, 1rem);
-    font-family: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "HG Mincho E", "MS PMincho", "MS Mincho", Georgia, "Times New Roman", Times, serif;
+    font-family: var(--font-serif);
 
     /* 高品質な文字レンダリング */
     font-feature-settings: "palt" 1, "pkna" 1;
@@ -495,7 +502,7 @@ ol {
     /* 本文と統一した文字組み */
     font-size: clamp(1rem, 2.5vw, 1rem);
     line-height: 1.75;
-    font-family: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "HG Mincho E", "MS PMincho", "MS Mincho", Georgia, "Times New Roman", Times, serif;
+    font-family: var(--font-serif);
 
     /* 文字組み設定を継承 */
     font-feature-settings: "palt" 1, "pkna" 1;
@@ -647,7 +654,7 @@ blockquote {
     background-color: var(--border-color);
 
     /* 引用文の文字組み */
-    font-family: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "HG Mincho E", "MS PMincho", "MS Mincho", Georgia, "Times New Roman", Times, serif;
+    font-family: var(--font-serif);
     font-style: italic;
     /* 欧文部分の斜体化 */
     line-height: 1.6;
@@ -715,7 +722,7 @@ figcaption {
     font-style: italic;
 
     /* キャプションの文字組み */
-    font-family: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "HG Mincho E", "MS PMincho", "MS Mincho", Georgia, "Times New Roman", Times, serif;
+    font-family: var(--font-serif);
     letter-spacing: 0.02em;
     text-align: center;
 
@@ -749,7 +756,7 @@ pre {
     margin-bottom: var(--baseline-unit);
 
     /* 等幅フォントの最適化 */
-    font-family: "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", "Source Code Pro", "Menlo", "Consolas", "DejaVu Sans Mono", monospace;
+    font-family: var(--font-monospace);
     font-size: 0.875em;
     /* 本文より少し小さく */
     line-height: 1.5;
@@ -769,7 +776,7 @@ pre {
 code,
 kbd,
 samp {
-    font-family: "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", "Source Code Pro", "Menlo", "Consolas", "DejaVu Sans Mono", monospace;
+    font-family: var(--font-monospace);
     font-size: 0.875em;
     padding: 0.2em 0.4em;
     background-color: var(--code-background);
@@ -800,7 +807,7 @@ table {
     margin-bottom: var(--baseline-unit);
 
     /* テーブルの文字組み */
-    font-family: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "HG Mincho E", "MS PMincho", "MS Mincho", Georgia, "Times New Roman", Times, serif;
+    font-family: var(--font-serif);
     font-size: 0.9em;
     /* 本文より少し小さく */
     line-height: 1.4;
@@ -1115,7 +1122,7 @@ fieldset {
     box-shadow: 0 2px 8px var(--shadow-medium);
 
     /* アラート内の文字組み */
-    font-family: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "HG Mincho E", "MS PMincho", "MS Mincho", Georgia, "Times New Roman", Times, serif;
+    font-family: var(--font-serif);
     line-height: 1.6;
     font-feature-settings: "palt" 1, "pkna" 1;
 }
@@ -1236,7 +1243,7 @@ code {
     background-color: var(--code-background);
     padding: 0.2em 0.4em;
     border-radius: 3px;
-    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    font-family: var(--font-monospace);
     font-size: 0.9em;
     color: var(--code-text-color);
     white-space: nowrap;
@@ -1330,7 +1337,7 @@ table th {
     color: var(--text-color);
     border-bottom: 2px solid var(--border-color);
     border-right: 1px solid var(--border-color);
-    font-family: "Hiragino Sans", "Yu Gothic", YuGothic, Meiryo, sans-serif;
+    font-family: var(--font-sans-serif);
 }
 
 table th:last-child {
@@ -1399,7 +1406,7 @@ table code {
     color: var(--muted-text-color);
     margin: 0;
     font-style: italic;
-    font-family: "Hiragino Sans", "Yu Gothic", YuGothic, Meiryo, sans-serif;
+    font-family: var(--font-sans-serif);
     text-align: center;
 }
 
@@ -1449,7 +1456,7 @@ table code {
     border-radius: 4px;
     padding: 5px 10px;
     font-size: 0.8rem;
-    font-family: "Hiragino Sans", "Yu Gothic", YuGothic, Meiryo, sans-serif;
+    font-family: var(--font-sans-serif);
     color: var(--button-text-color);
     cursor: pointer;
     opacity: 0;

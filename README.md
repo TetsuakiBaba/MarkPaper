@@ -1,4 +1,3 @@
-![Screenshot of MarkPaper](teaser.png)
 # MarkPaper
 author: Tetsuaki Baba
 date: 2025-07-19
@@ -8,7 +7,7 @@ institution: Tokyo Metropolitan University
 To create beautiful documents, all you need is to write Markdown text. MarkPaper is a tool that generates beautiful HTML documents suitable for academic papers and technical documents using a custom Markdown parser. It provides rich features including a hamburger menu with table of contents, footnote system, GitHub-style alerts, code blocks, and more.
 
 ## Demo
-You can see the demo of MarkPaper at [MarkPaper Demo](https://tetsuakibaba.github.io/MarkPaper/?file=README.md).
+You can see the demo of MarkPaper at [MarkPaper Demo](https://tetsuakibaba.github.io/MarkPaper/?file=README.md). This is a demo that opens the currently viewed README.md file in MarkPaper.
 
 ## Getting Started
 
@@ -100,7 +99,7 @@ email: john@example.com
 - Ordered list item 1
   - Ordered item 1-1
   - Ordered item 1-2
-    - Deep nested item (no number)
+    - Deep nested item
 - Ordered list item 2
   - Ordered item 2-1
   - Ordered item 2-2
@@ -127,6 +126,9 @@ This is text with a footnote[^1].
 
 [^1]: This is the footnote content.
 ```
+This is text with a footnote[^1].
+
+[^1]: Footnotes are automatically placed at the end of the corresponding heading section.
 
 **Features:**
 - Footnotes are automatically placed at the end of the corresponding heading section
@@ -137,6 +139,7 @@ This is text with a footnote[^1].
 ```markdown
 [Link text](https://example.com)
 ```
+[Link text](https://example.com)
 
 **Features:**
 - Opens in new tab with `target="_blank"`
@@ -146,6 +149,7 @@ This is text with a footnote[^1].
 ```markdown
 https://example.com
 ```
+https://example.com
 
 **Features:**
 - Supports HTTPS, HTTP, and FTP protocols
@@ -267,37 +271,10 @@ function hello() {
 > This is a regular blockquote.
 
 
-**Features:**
-- Standard Markdown table syntax support
-- Automatic header detection with separator rows
-- Responsive design with horizontal scrolling on mobile
-- Beautiful styling with hover effects
-- Support for inline formatting within cells (bold, italic, code)
-
-**Example Result:**
-| Name | Age | Occupation |
-|------|-----|------------|
-| John Doe | 28 | Engineer |
-| Jane Smith | 32 | Designer |
-| Bob Johnson | 25 | Marketer |
-
 ## Customization
 
 ### CSS Variables
-You can customize colors and fonts in the `:root` section of `markpaper.css`:
-
-```css
-:root {
-    --text-color: #4a4a4a;
-    --background-color: #FFFFFF;
-    --accent-color: #1d7484;
-    --accent-hover-color: #982c61;
-    --accent-visited-color: #144f5a;
-    --border-color: #f1f1f1;
-    --code-background: #f1f1f1;
-    --blockquote-border: #1d7484;
-}
-```
+You can customize colors and fonts in the `:root` section of `markpaper.css`.
 
 ### Font Settings
 By default, it uses a serif font stack optimized for Japanese text, but it can be changed in the `body` CSS settings.

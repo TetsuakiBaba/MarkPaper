@@ -547,7 +547,7 @@
         const tableMatch = line.match(/^\s*\|?(.+)\|?\s*$/);
         if (tableMatch && tableMatch[1].includes('|')) {
           console.log('Table match found:', tableMatch[1]); // デバッグ用
-          const cells = tableMatch[1].split('|').map(cell => cell.trim());
+          const cells = tableMatch[1].split('|').map(cell => cell.trim()).filter(cell => cell !== '');
 
           if (!inTable) {
             closeAlert();
