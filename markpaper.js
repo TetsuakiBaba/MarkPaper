@@ -670,6 +670,82 @@
     return html;
   }
 
+  // --- 安全なHTMLタグのホワイトリスト ----------------------------
+  const ALLOWED_TAGS = [
+    'strong', 'b', 'em', 'i', 'u', 's', 'del', 'ins', 'mark',
+    'span', 'div', 'p', 'br', 'hr', 'code', 'pre',
+    'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+    'ul', 'ol', 'li', 'dl', 'dt', 'dd',
+    'blockquote', 'q', 'cite',
+    'table', 'thead', 'tbody', 'tr', 'th', 'td',
+    'a', 'img',
+    'sub', 'sup', 'small', 'abbr', 'time'
+  ];
+
+  const ALLOWED_ATTRIBUTES = [
+    'class', 'id', 'style', 'title', 'lang', 'dir',
+    'href', 'target', 'rel', // aタグ用
+    'src', 'alt', 'width', 'height', // imgタグ用
+    'colspan', 'rowspan', // テーブル用
+    'datetime', // timeタグ用
+    'cite' // blockquote, qタグ用
+  ];
+
+  const DANGEROUS_ATTRIBUTES = /^(on\w+|javascript:|data-|vbscript:|livescript:|mocha:|charset|defer|language|src)$/i;
+
+  // HTMLタグをサニタイズする関数
+  function sanitizeHTML(text) {
+    return text.replace(/<(\/?)([\w-]+)([^>]*)>/gi, (match, slash, tag, attrs) => {
+      const tagLower = tag.toLowerCase();
+
+      // 許可されていないタグはエスケープ
+      if (!ALLOWED_TAGS.includes(tagLower)) {
+        return match.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      }
+
+      // 終了タグの場合はそのまま返す
+      if (slash === '/') {
+        return `</${tag}>`;
+      }
+
+      // 属性をサニタイズ
+      let safeAttrs = '';
+      if (attrs.trim()) {
+        // 属性を解析（簡易版）
+        const attrMatches = attrs.match(/\s+([^=\s]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+)))?/g);
+        if (attrMatches) {
+          attrMatches.forEach(attrMatch => {
+            const attrParts = attrMatch.trim().match(/^([^=\s]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+)))?$/);
+            if (attrParts) {
+              const attrName = attrParts[1].toLowerCase();
+              const attrValue = attrParts[2] || attrParts[3] || attrParts[4] || '';
+
+              // 安全な属性のみ許可
+              if (ALLOWED_ATTRIBUTES.includes(attrName) && !DANGEROUS_ATTRIBUTES.test(attrName)) {
+                // 特定の属性値もチェック
+                if (attrName === 'href') {
+                  // javascript:などの危険なプロトコルを除外
+                  if (!attrValue.match(/^(javascript:|vbscript:|data:|about:)/i)) {
+                    safeAttrs += ` ${attrName}="${attrValue.replace(/"/g, '&quot;')}"`;
+                  }
+                } else if (attrName === 'src') {
+                  // 相対パス、http、https、dataのみ許可
+                  if (attrValue.match(/^(https?:\/\/|data:image\/|\.?\/?[\w\-\.\/]+)$/i)) {
+                    safeAttrs += ` ${attrName}="${attrValue.replace(/"/g, '&quot;')}"`;
+                  }
+                } else {
+                  safeAttrs += ` ${attrName}="${attrValue.replace(/"/g, '&quot;')}"`;
+                }
+              }
+            }
+          });
+        }
+      }
+
+      return `<${tag}${safeAttrs}>`;
+    });
+  }
+
   // --- GitHubアラートのヘルパー関数 ----------------------------
   function getAlertTitle(type) {
     const titles = {
@@ -682,14 +758,41 @@
     return titles[type] || 'Alert';
   }  // --- インライン記法の簡易置換 (bold/italic/URL/footnote/link) ----------------------
   function escapeInline(text, currentFootnotes = [], footnoteDefinitions = {}) {
-    // 安全のため > & < をエスケープ
-    const esc = text
+    // 1. まず安全なHTMLタグをサニタイズ（危険なタグ・属性を除去）
+    const sanitizedHTML = sanitizeHTML(text);
+
+    // 2. 残りの < > & をエスケープ（ただし、許可されたHTMLタグは保護）
+    let escaped = sanitizedHTML;
+
+    // 許可されたHTMLタグを一時的に保護
+    const tagProtectionMap = new Map();
+    let protectionCounter = 0;
+
+    // 開始タグと終了タグの両方を保護
+    escaped = escaped.replace(/<(\/?)([\w-]+)([^>]*)>/g, (match, slash, tag, attrs) => {
+      const tagLower = tag.toLowerCase();
+      if (ALLOWED_TAGS.includes(tagLower)) {
+        const protectionKey = `__TAG_PROTECT_${protectionCounter++}__`;
+        tagProtectionMap.set(protectionKey, match);
+        return protectionKey;
+      }
+      return match;
+    });
+
+    // 残りの < > & をエスケープ
+    escaped = escaped
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
 
+    // 保護されたHTMLタグを復元
+    tagProtectionMap.forEach((originalTag, protectionKey) => {
+      escaped = escaped.replace(protectionKey, originalTag);
+    });
+
+    // 3. Markdown記法の処理
     // **bold**
-    const bold = esc.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    const bold = escaped.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
     // *italic*
     const italic = bold.replace(/\*(.+?)\*/g, '<em>$1</em>');
 

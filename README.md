@@ -48,6 +48,7 @@ CDN link to include the script in your HTML:
 - **Hamburger Menu**: Access table of contents from the circular menu in the top right
 - **Auto Table of Contents Generation**: Automatically generates TOC from h2 headings
 - **Extended Markdown Syntax**: Rich syntax support including footnotes, alerts, code blocks
+- **HTML Tag Support**: Safe HTML tags with whitelist-based security filtering
 - **Beautiful Typography**: Font settings optimized for Japanese text
 
 ## Supported Markdown Syntax
@@ -113,7 +114,7 @@ email: john@example.com
 - Ordered list item 1
   - Ordered item 1-1
   - Ordered item 1-2
-    - Deep nested item (no number)
+    - Deep nested item
 - Ordered list item 2
   - Ordered item 2-1
   - Ordered item 2-2
@@ -270,6 +271,64 @@ function hello() {
 ```
 > This is a regular blockquote.
 
+#### Raw HTML Tags
+MarkPaper supports safe HTML tags within Markdown content. Only whitelisted tags and attributes are allowed for security.
+
+```markdown
+<strong>HTML strong tag</strong> and <em>HTML em tag</em>
+
+<span style="color: red;">Red text</span>
+
+<div class="custom-class">
+Custom div with class
+</div>
+
+<small>Small text</small> and <sup>superscript</sup> and <sub>subscript</sub>
+```
+
+**Result:**
+<strong>HTML strong tag</strong> and <em>HTML em tag</em>
+
+<span style="color: red;">Red text</span>
+
+<div class="custom-class">
+Custom div with class
+</div>
+
+<small>Small text</small> and <sup>superscript</sup> and <sub>subscript</sub>
+
+**Allowed HTML Tags:**
+- Text formatting: `strong`, `b`, `em`, `i`, `u`, `s`, `del`, `ins`, `mark`, `small`, `sub`, `sup`
+- Structure: `div`, `span`, `p`, `br`, `hr`, `blockquote`
+- Headings: `h1`, `h2`, `h3`, `h4`, `h5`, `h6`
+- Lists: `ul`, `ol`, `li`, `dl`, `dt`, `dd`
+- Tables: `table`, `thead`, `tbody`, `tr`, `th`, `td`
+- Links and media: `a`, `img`
+- Code: `code`, `pre`
+- Other: `abbr`, `cite`, `q`, `time`
+
+**Allowed Attributes:**
+- General: `class`, `id`, `style`, `title`, `lang`, `dir`
+- Links: `href`, `target`, `rel`
+- Images: `src`, `alt`, `width`, `height`
+- Tables: `colspan`, `rowspan`
+- Time: `datetime`
+- Quotes: `cite`
+
+**Security Features:**
+- Dangerous tags like `<script>` are automatically escaped
+- Event handlers (`onclick`, `onload`, etc.) are removed
+- `javascript:` URLs are filtered out
+- Only safe protocols (`http`, `https`, relative paths) are allowed
+
+**Example of filtered content:**
+```markdown
+<!-- These will be escaped/filtered for safety -->
+<script>alert('XSS')</script>
+<img src="x" onerror="alert('XSS')">
+<a href="javascript:alert('XSS')">Dangerous link</a>
+```
+
 
 ## Customization
 
@@ -319,6 +378,7 @@ This project aims to implement a simple and lightweight Markdown parser with ele
 - [ ] Syntax highlighting feature
 - [x] ~~Table syntax support~~ (Completed)
 - [x] ~~Document metadata support~~ (Completed)
+- [x] ~~Safe HTML tag support~~ (Completed)
 - [ ] Mathematical notation support
 - [ ] Dark mode support
 - [ ] Print style optimization
