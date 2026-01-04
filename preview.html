@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MarkPaper Real-time Preview Sample</title>
+    <link rel="stylesheet" href="markpaper.css">
+    <style>
+        body {
+            max-width: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            font-family: sans-serif;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .editor-pane {
+            flex: 1;
+            border-right: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            background-color: #f9f9f9;
+        }
+
+        .editor-header {
+            padding: 10px 20px;
+            background: #eee;
+            border-bottom: 1px solid #ddd;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        textarea {
+            flex: 1;
+            padding: 20px;
+            border: none;
+            outline: none;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 16px;
+            line-height: 1.6;
+            resize: none;
+            background: transparent;
+        }
+
+        .preview-pane {
+            flex: 1;
+            overflow-y: auto;
+            background: white;
+        }
+
+        .preview-content {
+            max-width: 38em;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .editor-pane,
+            .preview-pane {
+                height: 50vh;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="editor-pane">
+            <div class="editor-header">
+                <span>Markdown Editor</span>
+                <small>Real-time Preview with MarkPaper</small>
+            </div>
+            <textarea id="editor" placeholder="Type your markdown here..."># MarkPaper Real-time Preview
+
+This is a sample of real-time rendering using `MarkPaper.mdToHTML()`.
+
+## Features
+- **Bold** and *Italic*
+- [Links](https://github.com/TetsuakiBaba/MarkPaper)
+- Lists:
+  - Item 1
+  - Item 2
+- Code blocks:
+```javascript
+console.log("Hello MarkPaper!");
+```
+
+> [!TIP]
+> Try editing this text on the left!</textarea>
+        </div>
+        <div class="preview-pane">
+            <article id="preview" class="preview-content"></article>
+        </div>
+    </div>
+
+    <script src="markpaper.js"></script>
+    <script>
+        const editor = document.getElementById('editor');
+        const preview = document.getElementById('preview');
+
+        function updatePreview() {
+            const md = editor.value;
+            // Use the globally exposed mdToHTML function
+            const html = mdToHTML(md);
+            preview.innerHTML = html;
+
+            // Apply copy button functionality to new code blocks
+            if (window.MarkPaper && MarkPaper.addCopyButtonFunctionality) {
+                MarkPaper.addCopyButtonFunctionality();
+            }
+        }
+
+        // Initial render
+        updatePreview();
+
+        // Update on input
+        editor.addEventListener('input', updatePreview);
+
+        // Tab key support
+        editor.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = editor.selectionStart;
+                const end = editor.selectionEnd;
+                editor.value = editor.value.substring(0, start) + '  ' + editor.value.substring(end);
+                editor.selectionStart = editor.selectionEnd = start + 2;
+                updatePreview();
+            }
+        });
+    </script>
+</body>
+
+</html>

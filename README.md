@@ -7,7 +7,8 @@ institution: Tokyo Metropolitan University
 To create beautiful documents, all you need is to write Markdown text. MarkPaper is a tool that generates beautiful HTML documents suitable for academic papers and technical documents using a custom Markdown parser. It provides rich features including a hamburger menu with table of contents, footnote system, GitHub-style alerts, code blocks, and more.
 
 ## Demo
-You can see the demo of MarkPaper at [MarkPaper Demo](https://tetsuakibaba.github.io/MarkPaper/?file=README.md). This is a demo that opens the currently viewed README.md file in MarkPaper.
+- [MarkPaper Demo](https://tetsuakibaba.github.io/MarkPaper/?file=README.md): This is a demo that opens the currently viewed README.md file in MarkPaper.
+- [Real-time Preview Sample](preview.html): A sample implementation of a split-screen editor with real-time rendering.
 
 ## Getting Started
 
@@ -48,6 +49,37 @@ CDN link to include the script in your HTML:
 - **Hamburger Menu**: Access table of contents from the circular menu in the top right
 - **Auto Table of Contents Generation**: Automatically generates TOC from h2 headings
 - **Extended Markdown Syntax**: Rich syntax support including footnotes, alerts, code blocks
+
+## Library Usage
+
+You can use MarkPaper as a JavaScript library to convert Markdown to HTML in your own projects. The library exposes a global `MarkPaper` object and a direct `mdToHTML` function for convenience.
+
+```html
+<script src="markpaper.js"></script>
+<script>
+  // Convert Markdown string to HTML
+  const markdown = "# Hello World\nThis is **bold** text.";
+  const html = mdToHTML(markdown); 
+  // or MarkPaper.mdToHTML(markdown);
+  
+  document.getElementById('your-container').innerHTML = html;
+  
+  // If you have code blocks, you can add copy buttons
+  MarkPaper.addCopyButtonFunctionality();
+</script>
+```
+
+### Real-time Preview Example
+
+```javascript
+const textarea = document.querySelector('textarea');
+const preview = document.querySelector('#preview');
+
+textarea.addEventListener('input', () => {
+  preview.innerHTML = MarkPaper.mdToHTML(textarea.value);
+  MarkPaper.addCopyButtonFunctionality();
+});
+```
 - **HTML Tag Support**: Safe HTML tags with whitelist-based security filtering
 - **Beautiful Typography**: Font settings optimized for Japanese text
 
@@ -349,11 +381,12 @@ By default, it uses a serif font stack optimized for Japanese text, but it can b
 
 ```
 markpaper/
-├── index.html          # Main HTML file
-├── index.md            # Markdown content file
-├── markpaper.js        # Custom Markdown parser
+├── index.html          # Main HTML file (auto-renders index.md or ?file=...)
+├── index.md            # Default Markdown content file
+├── markpaper.js        # Markdown parser & library
 ├── markpaper.css       # Main stylesheet
-└── README.md          # This file
+├── preview.html        # Real-time preview sample
+└── README.md           # This file
 ```
 
 ## License

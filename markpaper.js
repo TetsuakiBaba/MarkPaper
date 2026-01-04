@@ -1,7 +1,7 @@
 // markpaper.js
 // MarkPaper - Markdown to Clean Paper
 // 自作の極小 Markdown パーサ & ローダー
-(function () {
+(function (global) {
   // グローバルな図番号管理
   let globalFigureNum = 0;
 
@@ -991,6 +991,69 @@
     activeLink.classList.add('active');
   }
 
+  // エディタモード（リアルタイムプレビュー）の初期化
+  function initEditorMode(initialContent = '') {
+    // 既存のコンテンツをクリア
+    const existingContent = document.getElementById('content');
+    if (existingContent) existingContent.style.display = 'none';
+
+    // エディタコンテナの作成
+    const container = document.createElement('div');
+    container.className = 'markpaper-editor-container';
+
+    // 左側：エディタペイン
+    const editorPane = document.createElement('div');
+    editorPane.className = 'markpaper-editor-pane';
+
+    const textarea = document.createElement('textarea');
+    textarea.className = 'markpaper-editor-textarea';
+    textarea.placeholder = 'Markdownを入力してください...';
+    textarea.value = initialContent;
+
+    editorPane.appendChild(textarea);
+
+    // 右側：プレビューペイン
+    const previewPane = document.createElement('div');
+    previewPane.className = 'markpaper-preview-pane';
+
+    const previewContent = document.createElement('article');
+    previewContent.className = 'markpaper-preview-content';
+    previewPane.appendChild(previewContent);
+
+    container.appendChild(editorPane);
+    container.appendChild(previewPane);
+    document.body.appendChild(container);
+
+    // プレビュー更新関数
+    const updatePreview = () => {
+      // 図番号をリセット
+      globalFigureNum = 0;
+      const md = textarea.value;
+      const html = mdToHTML(md);
+      previewContent.innerHTML = html;
+      // コピーボタン機能を適用
+      addCopyButtonFunctionality();
+    };
+
+    // 入力イベントでリアルタイム更新
+    textarea.addEventListener('input', updatePreview);
+
+    // 初回レンダリング
+    updatePreview();
+
+    // Tabキーの入力をサポート
+    textarea.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        textarea.value = textarea.value.substring(0, start) + '  ' + textarea.value.substring(end);
+        textarea.selectionStart = textarea.selectionEnd = start + 2;
+        updatePreview();
+      }
+    });
+  }
+
   // 動的DOM要素を作成する関数
   function createDynamicElements() {
     // ハンバーガーボタンを作成
@@ -1029,12 +1092,21 @@
 
   // ページ読み込み完了後に実行
   document.addEventListener('DOMContentLoaded', () => {
-    // 動的DOM要素を作成
-    createDynamicElements();
     // URLパラメータからファイル名を取得
     const urlParams = new URLSearchParams(window.location.search);
-    const file = urlParams.get('file') || 'index.md';
+    const fileParam = urlParams.get('file');
 
+    // ライブラリとして使用される場合を考慮し、
+    // パラメータがなく、かつデフォルトの表示先(id="content")もない場合は自動実行しない
+    if (!fileParam && !document.getElementById('content')) {
+      return;
+    }
+
+    const file = fileParam || 'index.md';
+
+    // 通常モード
+    // 動的DOM要素を作成
+    createDynamicElements();
     renderMarkdownFile(file, 'content');
 
     // ウィンドウリサイズ時にレイアウトを再調整
@@ -1138,4 +1210,22 @@
       }
     });
   }
-})();
+
+  // 公開API
+  const MarkPaper = {
+    mdToHTML: mdToHTML,
+    renderMarkdownFile: renderMarkdownFile,
+    initEditorMode: initEditorMode,
+    addCopyButtonFunctionality: addCopyButtonFunctionality
+  };
+
+  // グローバルスコープに公開
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = MarkPaper;
+  } else {
+    global.MarkPaper = MarkPaper;
+    // 互換性のために mdToHTML を直接公開（ユーザーの要望）
+    global.mdToHTML = mdToHTML;
+  }
+
+})(typeof window !== 'undefined' ? window : this);
