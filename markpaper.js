@@ -1216,7 +1216,11 @@
     mdToHTML: mdToHTML,
     renderMarkdownFile: renderMarkdownFile,
     initEditorMode: initEditorMode,
-    addCopyButtonFunctionality: addCopyButtonFunctionality
+    addCopyButtonFunctionality: addCopyButtonFunctionality,
+    createDynamicElements: createDynamicElements,
+    generateTableOfContents: generateTableOfContents,
+    initHamburgerMenu: initHamburgerMenu,
+    initScrollSpy: initScrollSpy
   };
 
   // グローバルスコープに公開
