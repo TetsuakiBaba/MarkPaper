@@ -9,7 +9,14 @@
   let currentFileName = '';
 
   // フッター生成関数
-  function generateFooter() {
+  function generateFooter(customFooter = '') {
+    if (customFooter) {
+      return `
+<footer class="markpaper-footer">
+  <p>${customFooter}</p>
+</footer>
+`;
+    }
     const fileName = currentFileName || 'unknown file';
     return `
 <footer class="markpaper-footer">
@@ -51,6 +58,9 @@
     let inTable = false;
     let tableRows = [];
     let tableHeaders = [];
+
+    // カスタムフッター
+    let customFooter = '';
 
     // コードブロック処理用の変数
     let inCodeBlock = false;
@@ -514,8 +524,14 @@
           if (metadata.institution) {
             html += `<div class="institution">${escapeHTML(metadata.institution)}</div>\n`;
           }
+          if (metadata.email) {
+            html += `<div class="email">${escapeHTML(metadata.email)}</div>\n`;
+          }
           if (metadata.editor) {
             html += `<div class="editor">Edited by ${escapeHTML(metadata.editor)}</div>\n`;
+          }
+          if (metadata.footer) {
+            customFooter = escapeInline(metadata.footer, [], footnotes);
           }
 
           html += `</header>\n`;
@@ -665,7 +681,7 @@
     addFootnotesToSection();
 
     // フッターを追加
-    html += generateFooter();
+    html += generateFooter(customFooter);
 
     return html;
   }

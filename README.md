@@ -103,13 +103,15 @@ author: John Doe
 date: 2024-01-15
 institution: University of Example
 email: john@example.com
+footer: © 2024 John Doe. [Project Page](https://example.com)
 ```
 
 **Features:**
 - Displays author information in a beautiful header format
-- Supports multiple metadata fields (author, date, institution, email, editor)
+- Supports multiple metadata fields (author, date, institution, email, editor, footer)
 - Automatically formatted with professional typography
 - Responsive design for mobile devices
+- Custom footer support with Markdown syntax
 
 **Supported Fields:**
 - `author`: Author name
@@ -117,6 +119,7 @@ email: john@example.com
 - `institution`: Affiliation or organization
 - `email`: Contact email address
 - `editor`: Editor name (displayed as "Edited by...")
+- `footer`: Custom footer text (supports Markdown links and formatting). If specified, the default MarkPaper generation message will be hidden.
 
 #### Text Decoration
 ```markdown

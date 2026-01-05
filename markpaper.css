@@ -240,6 +240,13 @@ h1 {
     margin-bottom: calc(var(--baseline-unit) * 0.125);
 }
 
+.document-header .email {
+    font-size: 0.9em;
+    color: var(--secondary-text-color);
+    margin-bottom: calc(var(--baseline-unit) * 0.125);
+    font-family: var(--font-monospace);
+}
+
 .document-header .editor {
     font-size: 0.85em;
     color: var(--muted-text-color);
@@ -258,7 +265,8 @@ h1 {
     }
 
     .document-header .date,
-    .document-header .institution {
+    .document-header .institution,
+    .document-header .email {
         font-size: 0.85em;
     }
 
