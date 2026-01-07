@@ -5,18 +5,16 @@
   // グローバルな図番号管理
   let globalFigureNum = 0;
 
+  // 図番号のリセット
+  function resetFigureNum() {
+    globalFigureNum = 0;
+  }
+
   // 現在読み込まれているファイル名を保存
   let currentFileName = '';
 
   // フッター生成関数
-  function generateFooter(customFooter = '') {
-    if (customFooter) {
-      return `
-<footer class="markpaper-footer">
-  <p>${customFooter}</p>
-</footer>
-`;
-    }
+  function generateFooter() {
     const fileName = currentFileName || 'unknown file';
     return `
 <footer class="markpaper-footer">
@@ -27,6 +25,9 @@
 
   // --- 極小 Markdown → HTML 変換関数 ----------------------------
   function mdToHTML(md) {
+    // 変換開始時に図番号をリセット
+    resetFigureNum();
+
     const lines = md.split(/\r?\n/);
     let html = '';
     let inUList = false;   // * の番号なしリスト
@@ -58,9 +59,6 @@
     let inTable = false;
     let tableRows = [];
     let tableHeaders = [];
-
-    // カスタムフッター
-    let customFooter = '';
 
     // コードブロック処理用の変数
     let inCodeBlock = false;
@@ -524,14 +522,8 @@
           if (metadata.institution) {
             html += `<div class="institution">${escapeHTML(metadata.institution)}</div>\n`;
           }
-          if (metadata.email) {
-            html += `<div class="email">${escapeHTML(metadata.email)}</div>\n`;
-          }
           if (metadata.editor) {
             html += `<div class="editor">Edited by ${escapeHTML(metadata.editor)}</div>\n`;
-          }
-          if (metadata.footer) {
-            customFooter = escapeInline(metadata.footer, [], footnotes);
           }
 
           html += `</header>\n`;
@@ -681,7 +673,7 @@
     addFootnotesToSection();
 
     // フッターを追加
-    html += generateFooter(customFooter);
+    html += generateFooter();
 
     return html;
   }
@@ -1042,8 +1034,6 @@
 
     // プレビュー更新関数
     const updatePreview = () => {
-      // 図番号をリセット
-      globalFigureNum = 0;
       const md = textarea.value;
       const html = mdToHTML(md);
       previewContent.innerHTML = html;
@@ -1148,8 +1138,6 @@
       })
       .then((md) => {
         console.log('File loaded successfully, parsing markdown...'); // デバッグ用
-        // 新しいドキュメントの読み込み時に図番号をリセット
-        globalFigureNum = 0;
 
         const html = mdToHTML(md);
         document.getElementById(targetId).innerHTML = html;
@@ -1230,6 +1218,7 @@
   // 公開API
   const MarkPaper = {
     mdToHTML: mdToHTML,
+    resetFigureNum: resetFigureNum,
     renderMarkdownFile: renderMarkdownFile,
     initEditorMode: initEditorMode,
     addCopyButtonFunctionality: addCopyButtonFunctionality,
