@@ -448,6 +448,7 @@ hr {
 a {
     text-decoration: none;
     color: var(--accent-color);
+    font-weight: bold;
     /* 長いURLの改行対応 */
     word-break: break-all;
     overflow-wrap: break-word;
@@ -459,7 +460,6 @@ a:visited {
 
 a:hover {
     color: var(--accent-hover-color);
-    border-bottom: 2px solid var(--text-color);
 }
 
 /* ============================================
@@ -489,11 +489,14 @@ a:hover {
     text-decoration: none;
     color: var(--accent-color);
     font-weight: normal;
+    border-bottom: none;
+    padding-bottom: 0;
 }
 
 .footnote-ref:hover {
     color: var(--accent-hover-color);
     border-bottom: none;
+    background-color: transparent;
 }
 
 /* ============================================
