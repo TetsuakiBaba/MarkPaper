@@ -2,6 +2,8 @@
 // MarkPaper - Markdown to Clean Paper
 // 自作の極小 Markdown パーサ & ローダー
 (function (global) {
+  const LIB_VERSION = '1.0.0';
+
   // グローバルな図番号管理
   let globalFigureNum = 0;
 
@@ -18,7 +20,7 @@
     const fileName = currentFileName || 'unknown file';
     return `
 <footer class="markpaper-footer">
-  <p>This HTML page was automatically generated from "${fileName}" by <a href="https://github.com/TetsuakiBaba/MarkPaper" target="_blank" rel="noopener noreferrer">MarkPaper</a>.</p>
+  <p>This HTML page was automatically generated from "${fileName}" by <a href="https://github.com/TetsuakiBaba/MarkPaper" target="_blank" rel="noopener noreferrer">MarkPaper v${LIB_VERSION}</a>.</p>
 </footer>
 `;
   }
@@ -1232,6 +1234,9 @@
 
   // 公開API
   const MarkPaper = {
+    version: function () {
+      return LIB_VERSION;
+    },
     mdToHTML: mdToHTML,
     resetFigureNum: resetFigureNum,
     renderMarkdownFile: renderMarkdownFile,
