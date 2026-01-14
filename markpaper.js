@@ -742,8 +742,8 @@
                   }
                 } else if (attrName === 'src') {
                   if (tagLower === 'iframe') {
-                    // iframeの場合はYouTube, Loom, Vimeoのみ許可
-                    if (attrValue.match(/^(https?:\/\/(www\.)?youtube\.com\/embed\/|https?:\/\/(www\.)?loom\.com\/embed\/|https?:\/\/player\.vimeo\.com\/video\/)/i)) {
+                    // iframeの場合はYouTube, Loom, Vimeo, Google Mapsのみ許可
+                    if (attrValue.match(/^(https?:\/\/(www\.)?youtube\.com\/embed\/|https?:\/\/(www\.)?loom\.com\/embed\/|https?:\/\/player\.vimeo\.com\/video\/|https?:\/\/(www\.)?google\.com\/maps\/embed)/i)) {
                       safeAttrs += ` ${attrName}="${attrValue.replace(/"/g, '&quot;')}"`;
                     }
                   } else {

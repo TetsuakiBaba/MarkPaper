@@ -332,18 +332,23 @@ Custom div with class
 
 <small>Small text</small> and <sup>superscript</sup> and <sub>subscript</sub>
 
-#### Video Embedding
-You can embed videos from YouTube, Loom, and Vimeo using their standard `<iframe>` embed codes.
+#### Video & Map Embedding
+You can embed videos and maps from YouTube, Loom, Vimeo, and Google Maps using their standard `<iframe>` embed codes.
 
 ```markdown
 <!-- YouTube Example -->
 <iframe width="560" height="315" src="https://www.youtube.com/embed/ALmsa_h8ho8?si=opILE1-bBGZSwmdb" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+<!-- Google Maps Example -->
+<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3240.8280303808788!2d139.7649361152551!3d35.68123618019432!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x60188bfbd89f7153%3A0x413774051f24d351!2z5p2x5Lqs6aeF!5e0!3m2!1sja!2sjp!4v1620000000000!5m2!1sja!2sjp" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
 ```
 <iframe width="560" height="315" src="https://www.youtube.com/embed/ALmsa_h8ho8?si=opILE1-bBGZSwmdb" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
+<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3240.8280303808788!2d139.7649361152551!3d35.68123618019432!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x60188bfbd89f7153%3A0x413774051f24d351!2z5p2x5Lqs6aeF!5e0!3m2!1sja!2sjp!4v1620000000000!5m2!1sja!2sjp" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+
 **Features:**
-- Responsive design (automatically fits the content width with 16:9 aspect ratio)
-- Only trusted domains (YouTube, Loom, Vimeo) are allowed for security
+- Responsive design (automatically fits the content width; videos maintain 16:9 aspect ratio)
+- Only trusted domains (YouTube, Loom, Vimeo, Google Maps) are allowed for security
 
 **Allowed HTML Tags:**
 - Text formatting: `strong`, `b`, `em`, `i`, `u`, `s`, `del`, `ins`, `mark`, `small`, `sub`, `sup`
