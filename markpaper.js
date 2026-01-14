@@ -302,7 +302,7 @@
         html += `<div class="code-block-container"><button class="copy-btn">Copy</button><pre><code${languageClass}>`;
         codeContent.forEach((line, index) => {
           if (index > 0) html += '\n';
-          html += escapeHTML(line);
+          html += _escapeHTML(line);
         });
         html += `</code></pre></div>\n`;
 
@@ -311,15 +311,6 @@
         codeContent = [];
         codeBlockFence = '';
       }
-    };
-
-    const escapeHTML = (text) => {
-      return text
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
     };
 
     // 脚注定義を収集する前処理
@@ -407,7 +398,7 @@
       if (line.match(/^(    |\t)/) && !inAlert && !line.match(/^\s*\*\s+/) && !line.match(/^\s*-\s+/) && !line.match(/^\s*\d+\.\s+/)) {
         closeList();
         const codeText = line.replace(/^(    |\t)/, '');
-        html += `<div class="code-block-container"><button class="copy-btn">Copy</button><pre><code>${escapeHTML(codeText)}</code></pre></div>\n`;
+        html += `<div class="code-block-container"><button class="copy-btn">Copy</button><pre><code>${_escapeHTML(codeText)}</code></pre></div>\n`;
         return;
       }
 
@@ -514,16 +505,16 @@
           html += `<h1>${escapeInline(title, currentSectionFootnotes, footnotes)}</h1>\n`;
 
           if (metadata.author) {
-            html += `<div class="author">${escapeHTML(metadata.author)}</div>\n`;
+            html += `<div class="author">${_escapeHTML(metadata.author)}</div>\n`;
           }
           if (metadata.date) {
-            html += `<div class="date">${escapeHTML(metadata.date)}</div>\n`;
+            html += `<div class="date">${_escapeHTML(metadata.date)}</div>\n`;
           }
           if (metadata.institution) {
-            html += `<div class="institution">${escapeHTML(metadata.institution)}</div>\n`;
+            html += `<div class="institution">${_escapeHTML(metadata.institution)}</div>\n`;
           }
           if (metadata.editor) {
-            html += `<div class="editor">Edited by ${escapeHTML(metadata.editor)}</div>\n`;
+            html += `<div class="editor">Edited by ${_escapeHTML(metadata.editor)}</div>\n`;
           }
 
           html += `</header>\n`;
@@ -624,16 +615,16 @@
         if (attrs) {
           const widthMatch = attrs.match(/width\s*=\s*"?([^"}]+)"?/);
           if (widthMatch && widthMatch[1]) {
-            style = ` style="width: ${escapeHTML(widthMatch[1])};"`;
+            style = ` style="width: ${_escapeHTML(widthMatch[1])};"`;
           }
         }
 
         html += `<figure class="image-figure">`;
-        html += `<img src="${src}" alt="${escapeHTML(alt)}"${style} />`;
+        html += `<img src="${src}" alt="${_escapeHTML(alt)}"${style} />`;
         if (alt && alt.trim()) {
           // キャプション付き画像
           globalFigureNum++;
-          html += `<figcaption>Fig ${globalFigureNum} ${escapeHTML(alt)}</figcaption>`;
+          html += `<figcaption>Fig ${globalFigureNum} ${_escapeHTML(alt)}</figcaption>`;
         }
         html += `</figure>\n`;
       }
@@ -678,6 +669,16 @@
     return html;
   }
 
+  function _escapeHTML(text) {
+    if (!text) return '';
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   // --- 安全なHTMLタグのホワイトリスト ----------------------------
   const ALLOWED_TAGS = [
     'strong', 'b', 'em', 'i', 'u', 's', 'del', 'ins', 'mark',
@@ -686,20 +687,21 @@
     'ul', 'ol', 'li', 'dl', 'dt', 'dd',
     'blockquote', 'q', 'cite',
     'table', 'thead', 'tbody', 'tr', 'th', 'td',
-    'a', 'img',
+    'a', 'img', 'iframe',
     'sub', 'sup', 'small', 'abbr', 'time'
   ];
 
   const ALLOWED_ATTRIBUTES = [
     'class', 'id', 'style', 'title', 'lang', 'dir',
     'href', 'target', 'rel', // aタグ用
-    'src', 'alt', 'width', 'height', // imgタグ用
+    'src', 'alt', 'width', 'height', // img, iframeタグ用
+    'frameborder', 'allow', 'allowfullscreen', 'webkitallowfullscreen', 'mozallowfullscreen', 'loading', 'referrerpolicy', // iframe用
     'colspan', 'rowspan', // テーブル用
     'datetime', // timeタグ用
     'cite' // blockquote, qタグ用
   ];
 
-  const DANGEROUS_ATTRIBUTES = /^(on\w+|javascript:|data-|vbscript:|livescript:|mocha:|charset|defer|language|src)$/i;
+  const DANGEROUS_ATTRIBUTES = /^(on\w+|javascript:|data-|vbscript:|livescript:|mocha:|charset|defer|language)$/i;
 
   // HTMLタグをサニタイズする関数
   function sanitizeHTML(text) {
@@ -737,9 +739,17 @@
                     safeAttrs += ` ${attrName}="${attrValue.replace(/"/g, '&quot;')}"`;
                   }
                 } else if (attrName === 'src') {
-                  // 相対パス、http、https、dataのみ許可
-                  if (attrValue.match(/^(https?:\/\/|data:image\/|\.?\/?[\w\-\.\/]+)$/i)) {
-                    safeAttrs += ` ${attrName}="${attrValue.replace(/"/g, '&quot;')}"`;
+                  if (tagLower === 'iframe') {
+                    // iframeの場合はYouTube, Loom, Vimeoのみ許可
+                    if (attrValue.match(/^(https?:\/\/(www\.)?youtube\.com\/embed\/|https?:\/\/(www\.)?loom\.com\/embed\/|https?:\/\/player\.vimeo\.com\/video\/)/i)) {
+                      safeAttrs += ` ${attrName}="${attrValue.replace(/"/g, '&quot;')}"`;
+                    }
+                  } else {
+                    // imgなどの通常のsrc
+                    // 相対パス、http、https、dataのみ許可
+                    if (attrValue.match(/^(https?:\/\/|data:image\/|\.?\/?[\w\-\.\/]+)$/i)) {
+                      safeAttrs += ` ${attrName}="${attrValue.replace(/"/g, '&quot;')}"`;
+                    }
                   }
                 } else {
                   safeAttrs += ` ${attrName}="${attrValue.replace(/"/g, '&quot;')}"`;
@@ -766,10 +776,15 @@
     return titles[type] || 'Alert';
   }  // --- インライン記法の簡易置換 (bold/italic/URL/footnote/link) ----------------------
   function escapeInline(text, currentFootnotes = [], footnoteDefinitions = {}) {
-    // 1. まず安全なHTMLタグをサニタイズ（危険なタグ・属性を除去）
-    const sanitizedHTML = sanitizeHTML(text);
+    // 1. まずインラインコードを処理（HTMLタグが中にあってもエスケープされるように）
+    let processed = text.replace(/`([^`]+)`/g, (match, code) => {
+      return `<code>${_escapeHTML(code)}</code>`;
+    });
 
-    // 2. 残りの < > & をエスケープ（ただし、許可されたHTMLタグは保護）
+    // 2. まず安全なHTMLタグをサニタイズ（危険なタグ・属性を除去）
+    const sanitizedHTML = sanitizeHTML(processed);
+
+    // 3. 残りの < > & をエスケープ（ただし、許可されたHTMLタグは保護）
     let escaped = sanitizedHTML;
 
     // 許可されたHTMLタグを一時的に保護
@@ -795,10 +810,10 @@
 
     // 保護されたHTMLタグを復元
     tagProtectionMap.forEach((originalTag, protectionKey) => {
-      escaped = escaped.replace(protectionKey, originalTag);
+      escaped = escaped.replace(protectionKey, () => originalTag);
     });
 
-    // 3. Markdown記法の処理
+    // 4. Markdown記法の処理
     // **bold**
     const bold = escaped.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
     // *italic*
@@ -807,11 +822,10 @@
     // ~~strikethrough~~
     const strikethrough = italic.replace(/~~(.+?)~~/g, '<s>$1</s>');
 
-    // インラインコード `code` → <code>code</code>
-    const inlineCode = strikethrough.replace(/`([^`]+)`/g, '<code>$1</code>');
+    // インラインコードは既に処理済みなのでスキップ
 
     // テキストリンクの処理 [テキスト](url) → <a href="url">テキスト</a>（脚注よりも先に処理）
-    const linkProcessed = inlineCode.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+    const linkProcessed = strikethrough.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
 
     // 画像の処理 ![alt](src) → <img src="src" alt="alt"> またはキャプション付き画像
     const imageProcessed = linkProcessed.replace(/!\[([^\]]*)\]\(([^)]+)\)\s*(?:\{([^}]+)\})?/g, (match, alt, src, attrs) => {
@@ -819,16 +833,16 @@
       if (attrs) {
         const widthMatch = attrs.match(/width\s*=\s*"?([^"}]+)"?/);
         if (widthMatch && widthMatch[1]) {
-          style = ` style="width: ${escapeHTML(widthMatch[1])};"`;
+          style = ` style="width: ${_escapeHTML(widthMatch[1])};"`;
         }
       }
 
       let figureHtml = `<figure class="image-figure">`;
-      figureHtml += `<img src="${src}" alt="${escapeHTML(alt)}"${style} />`;
+      figureHtml += `<img src="${src}" alt="${_escapeHTML(alt)}"${style} />`;
       if (alt && alt.trim()) {
         // キャプション付き画像
         globalFigureNum++;
-        figureHtml += `<figcaption>Fig ${globalFigureNum} ${escapeHTML(alt)}</figcaption>`;
+        figureHtml += `<figcaption>Fig ${globalFigureNum} ${_escapeHTML(alt)}</figcaption>`;
       }
       figureHtml += `</figure>`;
       return figureHtml;
@@ -846,13 +860,14 @@
     // URLの自動リンク化（http, https, ftp対応）
     // 既にHTMLタグ内にあるURLは処理しないように改良
     const urlPattern = /(https?:\/\/[^\s<>"']+|ftp:\/\/[^\s<>"']+)/g;
-    return footnoteProcessed.replace(urlPattern, (match, url) => {
+    return footnoteProcessed.replace(urlPattern, (match, url, offset) => {
       // マッチした部分の前後をチェックして、既にaタグ内にあるかどうかを判定
-      const beforeMatch = footnoteProcessed.substring(0, footnoteProcessed.indexOf(match));
-      const afterMatch = footnoteProcessed.substring(footnoteProcessed.indexOf(match) + match.length);
+      const beforeMatch = footnoteProcessed.substring(0, offset);
+      const afterMatch = footnoteProcessed.substring(offset + match.length);
 
-      // href="の直後にあるURLは処理しない
-      if (beforeMatch.endsWith('href="') || beforeMatch.endsWith("href='")) {
+      // href=" や src=" の直後にあるURLは処理しない
+      if (beforeMatch.endsWith('href="') || beforeMatch.endsWith("href='") ||
+        beforeMatch.endsWith('src="') || beforeMatch.endsWith("src='")) {
         return match;
       }
 

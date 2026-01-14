@@ -699,7 +699,8 @@ blockquote p:first-of-type:first-letter {
    画像・動画設定（書籍的レイアウト）
    ============================================ */
 img,
-video {
+video,
+iframe {
     height: auto;
     max-width: 100%;
     margin-top: 0;
@@ -708,6 +709,16 @@ video {
     /* 画像の品質向上 */
     image-rendering: -webkit-optimize-contrast;
     image-rendering: crisp-edges;
+}
+
+/* iframe 特有のスタイル（16:9のアスペクト比を維持） */
+iframe {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    margin: 0 auto var(--baseline-unit) auto;
 }
 
 /* 図表（Figure）の書籍的スタイリング */

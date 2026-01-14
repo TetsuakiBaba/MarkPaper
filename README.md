@@ -332,20 +332,34 @@ Custom div with class
 
 <small>Small text</small> and <sup>superscript</sup> and <sub>subscript</sub>
 
+#### Video Embedding
+You can embed videos from YouTube, Loom, and Vimeo using their standard `<iframe>` embed codes.
+
+```markdown
+<!-- YouTube Example -->
+<iframe width="560" height="315" src="https://www.youtube.com/embed/ALmsa_h8ho8?si=opILE1-bBGZSwmdb" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+```
+<iframe width="560" height="315" src="https://www.youtube.com/embed/ALmsa_h8ho8?si=opILE1-bBGZSwmdb" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+**Features:**
+- Responsive design (automatically fits the content width with 16:9 aspect ratio)
+- Only trusted domains (YouTube, Loom, Vimeo) are allowed for security
+
 **Allowed HTML Tags:**
 - Text formatting: `strong`, `b`, `em`, `i`, `u`, `s`, `del`, `ins`, `mark`, `small`, `sub`, `sup`
 - Structure: `div`, `span`, `p`, `br`, `hr`, `blockquote`
 - Headings: `h1`, `h2`, `h3`, `h4`, `h5`, `h6`
 - Lists: `ul`, `ol`, `li`, `dl`, `dt`, `dd`
 - Tables: `table`, `thead`, `tbody`, `tr`, `th`, `td`
-- Links and media: `a`, `img`
+- Links and media: `a`, `img`, `iframe`
 - Code: `code`, `pre`
 - Other: `abbr`, `cite`, `q`, `time`
 
 **Allowed Attributes:**
 - General: `class`, `id`, `style`, `title`, `lang`, `dir`
 - Links: `href`, `target`, `rel`
-- Images: `src`, `alt`, `width`, `height`
+- Images/Media: `src`, `alt`, `width`, `height`, `loading`
+- Video Embedding: `frameborder`, `allow`, `allowfullscreen`, `webkitallowfullscreen`, `mozallowfullscreen`
 - Tables: `colspan`, `rowspan`
 - Time: `datetime`
 - Quotes: `cite`
