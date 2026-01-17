@@ -16,11 +16,19 @@
   let currentFileName = '';
 
   // フッター生成関数
-  function generateFooter() {
+  function generateFooter(customFooter = '') {
     const fileName = currentFileName || 'unknown file';
+    let footerContent = '';
+    
+    if (customFooter) {
+      footerContent = `<div class="custom-footer">${customFooter}</div>`;
+    } else {
+      footerContent = `<p>This HTML page was automatically generated from "${fileName}" by <a href="https://github.com/TetsuakiBaba/MarkPaper" target="_blank" rel="noopener noreferrer">MarkPaper v${LIB_VERSION}</a>.</p>`;
+    }
+
     return `
 <footer class="markpaper-footer">
-  <p>This HTML page was automatically generated from "${fileName}" by <a href="https://github.com/TetsuakiBaba/MarkPaper" target="_blank" rel="noopener noreferrer">MarkPaper v${LIB_VERSION}</a>.</p>
+  ${footerContent}
 </footer>
 `;
   }
@@ -38,6 +46,9 @@
     // リストの入れ子管理用の変数
     let listStack = [];    // スタック形式でリストレベルを管理 [{type: 'ul', level: 0}, {type: 'ol', level: 2}, ...]
     let orderNumbers = []; // ordered listの番号管理用 [1, 1, 2, ...] (レベルごとの番号)
+
+    // メタデータから取得するカスタムフッター
+    let customFooterText = '';
 
     // 章番号管理用の変数
     let chapterNum = 0;  // ## の番号
@@ -67,6 +78,21 @@
     let codeLanguage = '';
     let codeContent = [];
     let codeBlockFence = ''; // フェンスの種類を記録（```または````）
+
+    // 段落処理用のバッファ
+    let paragraphBuffer = [];
+
+    const flushParagraphBuffer = () => {
+      if (paragraphBuffer.length > 0) {
+        // バッファの内容を結合して出力
+        // 各行をエスケープしてから結合
+        const content = paragraphBuffer.map(line => 
+          escapeInline(line, currentSectionFootnotes, footnotes)
+        ).join('\n');
+        html += `<p>${content}</p>\n`;
+        paragraphBuffer = [];
+      }
+    };
 
     const closeList = () => {
       // スタックを空になるまで閉じる
@@ -353,6 +379,7 @@
           // blockquote内の空行は改行として追加
           blockquoteContent.push('');
         } else {
+          flushParagraphBuffer(); // 段落を確定
           closeList();
           closeBlockquote(); // 空行でblockquoteも閉じる
           closeTable(); // 空行でテーブルも閉じる
@@ -379,6 +406,7 @@
           }
         } else {
           // コードブロック開始
+          flushParagraphBuffer(); // 前の段落を閉じる
           closeList();
           closeAlert();
           closeBlockquote();
@@ -398,6 +426,7 @@
 
       // インデントコードブロック（4スペースまたはタブ）ただしリスト項目は除外
       if (line.match(/^(    |\t)/) && !inAlert && !line.match(/^\s*\*\s+/) && !line.match(/^\s*-\s+/) && !line.match(/^\s*\d+\.\s+/)) {
+        flushParagraphBuffer();
         closeList();
         const codeText = line.replace(/^(    |\t)/, '');
         html += `<div class="code-block-container"><button class="copy-btn">Copy</button><pre><code>${_escapeHTML(codeText)}</code></pre></div>\n`;
@@ -407,6 +436,7 @@
       // 見出し
       let m;
       if ((m = line.match(/^#####\s+(.*)/))) {
+        flushParagraphBuffer();
         closeList();
         closeAlert();
         closeBlockquote();
@@ -418,6 +448,7 @@
         currentSectionLevel = 5;
         html += `<h5>${escapeInline(m[1], currentSectionFootnotes, footnotes)}</h5>\n`;
       } else if ((m = line.match(/^####\s+(.*)/))) {
+        flushParagraphBuffer();
         closeList();
         closeAlert();
         closeBlockquote();
@@ -429,6 +460,7 @@
         currentSectionLevel = 4;
         html += `<h4>${escapeInline(m[1], currentSectionFootnotes, footnotes)}</h4>\n`;
       } else if ((m = line.match(/^###\s*(.*)/))) {
+        flushParagraphBuffer();
         closeList();
         closeAlert();
         closeBlockquote();
@@ -446,6 +478,7 @@
           html += `<h3>${chapterNum}.${sectionNum}</h3>\n`;
         }
       } else if ((m = line.match(/^##\s*(.*)/))) {
+        flushParagraphBuffer();
         closeList();
         closeAlert();
         closeBlockquote();
@@ -462,6 +495,7 @@
           html += `<h2>${chapterNum}</h2>\n`;
         }
       } else if ((m = line.match(/^#\s+(.*)/))) {
+        flushParagraphBuffer();
         closeList();
         closeAlert();
         closeBlockquote();
@@ -481,7 +515,7 @@
           const metaMatch = nextLine.match(/^(\w+):\s*(.+)$/);
 
           if (metaMatch && nextLine !== '') {
-            metadata[metaMatch[1]] = metaMatch[2];
+            metadata[metaMatch[1].toLowerCase()] = metaMatch[2];
             metadataEndIndex++;
           } else if (nextLine === '') {
             // 空行の場合はスキップして続行
@@ -518,14 +552,28 @@
           if (metadata.editor) {
             html += `<div class="editor">Edited by ${_escapeHTML(metadata.editor)}</div>\n`;
           }
+          if (metadata.footer) {
+            customFooterText = escapeInline(metadata.footer, currentSectionFootnotes, footnotes);
+          }
 
           html += `</header>\n`;
         } else {
           html += `<h1>${escapeInline(title, currentSectionFootnotes, footnotes)}</h1>\n`;
         }
       }
+      // 水平線 (Horizontal Rule: ---, ***, ___)
+      else if (line.match(/^(\s*[-*_]){3,}\s*$/)) {
+        flushParagraphBuffer();
+        closeList();
+        closeAlert();
+        closeBlockquote();
+        closeCodeBlock();
+        closeTable();
+        html += '<hr>\n';
+      }
       // 箇条書きと番号付きリスト（入れ子対応）
       else if (line.match(/^\s*[*-]\s+/) || line.match(/^\s*\d+\.\s+/)) {
+        flushParagraphBuffer();
         closeBlockquote(); // リスト開始時にblockquoteを閉じる
         closeAlert(); // リスト開始時にアラートを閉じる
 
@@ -551,6 +599,7 @@
           const cells = tableMatch[1].split('|').map(cell => cell.trim()).filter(cell => cell !== '');
 
           if (!inTable) {
+            flushParagraphBuffer();
             closeAlert();
             closeBlockquote();
             closeCodeBlock();
@@ -575,6 +624,7 @@
       }
       // GitHubアラート記法とblockquoteの処理
       else if (line.startsWith('> ') || (line === '>' && (inAlert || inBlockquote))) {
+        flushParagraphBuffer();
         const quoteLine = line.startsWith('> ') ? line.slice(2).trim() : '';
 
         // GitHubアラート記法をチェック
@@ -600,12 +650,15 @@
       }
       // 画像記法の処理（独立した行として）
       else if (line.match(/^!\[([^\]]*)\]\(([^)]+)\)/)) {
+        flushParagraphBuffer();
         closeList();
         closeAlert();
         closeBlockquote();
         const match = line.match(/^!\[([^\]]*)\]\(([^)]+)\)\s*(?:\{([^}]+)\})?$/);
         if (!match) {
-          html += `<p>${escapeInline(line, currentSectionFootnotes, footnotes)}</p>\n`;
+          // マッチしなかった場合(厳密なチェックで弾かれた場合など)は段落として処理
+          // ただし既にflushしているので、この行をバッファに入れて戻る
+          paragraphBuffer.push(line);
           return;
         }
 
@@ -636,7 +689,7 @@
         closeBlockquote(); // blockquoteも閉じる
         // 現在の行も処理
         if (line.trim()) {
-          html += `<p>${escapeInline(line, currentSectionFootnotes, footnotes)}</p>\n`;
+          paragraphBuffer.push(line);
         }
       }
       // blockquote以外の行が来たらblockquoteを閉じる
@@ -645,7 +698,7 @@
         closeTable();
         // 現在の行も処理
         if (line.trim()) {
-          html += `<p>${escapeInline(line, currentSectionFootnotes, footnotes)}</p>\n`;
+          paragraphBuffer.push(line);
         }
       }
       // 段落
@@ -653,10 +706,11 @@
         closeList();
         closeBlockquote();
         closeTable();
-        html += `<p>${escapeInline(line, currentSectionFootnotes, footnotes)}</p>\n`;
+        paragraphBuffer.push(line);
       }
     });
 
+    flushParagraphBuffer();
     closeList();
     closeAlert();
     closeBlockquote();
@@ -666,7 +720,7 @@
     addFootnotesToSection();
 
     // フッターを追加
-    html += generateFooter();
+    html += generateFooter(customFooterText);
 
     return html;
   }

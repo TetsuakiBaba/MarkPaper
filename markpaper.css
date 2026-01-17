@@ -546,6 +546,15 @@ li ol {
     /* 親のサイズを維持 */
 }
 
+/* 箇条書き（ul）内では番号表示とカウンターのインクリメントを抑制する */
+ul li::before {
+    content: none !important;
+}
+
+ul li {
+    counter-increment: none !important;
+}
+
 /* リスト項目内のネストしたリスト項目の調整 */
 li li {
     margin-bottom: calc(var(--baseline-unit) * 0.25);
@@ -1430,6 +1439,13 @@ table code {
     font-style: italic;
     font-family: var(--font-sans-serif);
     text-align: center;
+}
+
+.markpaper-footer .custom-footer {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+    font-family: var(--font-serif);
 }
 
 .markpaper-footer a {
