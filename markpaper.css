@@ -1448,6 +1448,15 @@ table code {
     font-family: var(--font-serif);
 }
 
+.markpaper-footer .license {
+    font-size: 0.75rem;
+    color: var(--muted-text-color);
+    margin-top: 0.5rem;
+    font-style: normal;
+    font-family: var(--font-sans-serif);
+    text-align: center;
+}
+
 .markpaper-footer a {
     color: var(--accent-color);
     text-decoration: none;

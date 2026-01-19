@@ -2,7 +2,7 @@
 // MarkPaper - Markdown to Clean Paper
 // 自作の極小 Markdown パーサ & ローダー
 (function (global) {
-  const LIB_VERSION = '1.0.0';
+  const LIB_VERSION = '1.0.1';
 
   // グローバルな図番号管理
   let globalFigureNum = 0;
@@ -16,10 +16,13 @@
   let currentFileName = '';
 
   // フッター生成関数
-  function generateFooter(customFooter = '') {
+  function generateFooter(customFooter = '', license = '') {
     const fileName = currentFileName || 'unknown file';
     let footerContent = '';
-    
+
+    const defaultLicense = 'This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0).';
+    const activeLicense = license || defaultLicense;
+
     if (customFooter) {
       footerContent = `<div class="custom-footer">${customFooter}</div>`;
     } else {
@@ -29,6 +32,7 @@
     return `
 <footer class="markpaper-footer">
   ${footerContent}
+  <div class="license">${activeLicense}</div>
 </footer>
 `;
   }
@@ -49,6 +53,7 @@
 
     // メタデータから取得するカスタムフッター
     let customFooterText = '';
+    let licenseText = '';
 
     // 章番号管理用の変数
     let chapterNum = 0;  // ## の番号
@@ -86,7 +91,7 @@
       if (paragraphBuffer.length > 0) {
         // バッファの内容を結合して出力
         // 各行をエスケープしてから結合
-        const content = paragraphBuffer.map(line => 
+        const content = paragraphBuffer.map(line =>
           escapeInline(line, currentSectionFootnotes, footnotes)
         ).join('\n');
         html += `<p>${content}</p>\n`;
@@ -549,11 +554,17 @@
           if (metadata.institution) {
             html += `<div class="institution">${_escapeHTML(metadata.institution)}</div>\n`;
           }
+          if (metadata.email) {
+            html += `<div class="email">${_escapeHTML(metadata.email)}</div>\n`;
+          }
           if (metadata.editor) {
             html += `<div class="editor">Edited by ${_escapeHTML(metadata.editor)}</div>\n`;
           }
           if (metadata.footer) {
             customFooterText = escapeInline(metadata.footer, currentSectionFootnotes, footnotes);
+          }
+          if (metadata.lisence) {
+            licenseText = escapeInline(metadata.lisence, currentSectionFootnotes, footnotes);
           }
 
           html += `</header>\n`;
@@ -720,7 +731,7 @@
     addFootnotesToSection();
 
     // フッターを追加
-    html += generateFooter(customFooterText);
+    html += generateFooter(customFooterText, licenseText);
 
     return html;
   }
@@ -1168,30 +1179,32 @@
   }
 
   // ページ読み込み完了後に実行
-  document.addEventListener('DOMContentLoaded', () => {
-    // URLパラメータからファイル名を取得
-    const urlParams = new URLSearchParams(window.location.search);
-    const fileParam = urlParams.get('file');
+  if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', () => {
+      // URLパラメータからファイル名を取得
+      const urlParams = new URLSearchParams(window.location.search);
+      const fileParam = urlParams.get('file');
 
-    // ライブラリとして使用される場合を考慮し、
-    // パラメータがなく、かつデフォルトの表示先(id="content")もない場合は自動実行しない
-    if (!fileParam && !document.getElementById('content')) {
-      return;
-    }
+      // ライブラリとして使用される場合を考慮し、
+      // パラメータがなく、かつデフォルトの表示先(id="content")もない場合は自動実行しない
+      if (!fileParam && !document.getElementById('content')) {
+        return;
+      }
 
-    const file = fileParam || 'index.md';
+      const file = fileParam || 'index.md';
 
-    // 通常モード
-    // 動的DOM要素を作成
-    createDynamicElements();
-    renderMarkdownFile(file, 'content');
+      // 通常モード
+      // 動的DOM要素を作成
+      createDynamicElements();
+      renderMarkdownFile(file, 'content');
 
-    // ウィンドウリサイズ時にレイアウトを再調整
-    window.addEventListener('resize', adjustSummaryLayout);
+      // ウィンドウリサイズ時にレイアウトを再調整
+      window.addEventListener('resize', adjustSummaryLayout);
 
-    // ハンバーガーメニューの初期化
-    initHamburgerMenu();
-  });
+      // ハンバーガーメニューの初期化
+      initHamburgerMenu();
+    });
+  }
 
   // Markdownファイルの読み込み完了後に目次を生成する関数を更新
   function renderMarkdownFile(path, targetId) {

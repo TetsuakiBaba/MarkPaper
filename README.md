@@ -1,7 +1,11 @@
 # MarkPaper
 author: Tetsuaki Baba
-date: 2025-07-19
+date: 2026-01-17
 institution: Tokyo Metropolitan University
+email: example@test.com
+editor: Tetsuaki Baba
+footer: © 2026 Tetsuaki Baba
+lisence: This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0).
 
 
 To create beautiful documents, all you need is to write Markdown text. MarkPaper is a tool that generates beautiful HTML documents suitable for academic papers and technical documents using a custom Markdown parser. It provides rich features including a hamburger menu with table of contents, footnote system, GitHub-style alerts, code blocks, and more.
@@ -104,14 +108,15 @@ date: 2024-01-15
 institution: University of Example
 email: john@example.com
 footer: © 2024 John Doe. [Project Page](https://example.com)
+lisence: This work is licensed under CC BY 4.0
 ```
 
 **Features:**
 - Displays author information in a beautiful header format
-- Supports multiple metadata fields (author, date, institution, email, editor, footer)
+- Supports multiple metadata fields (author, date, institution, email, editor, footer, lisence)
 - Automatically formatted with professional typography
 - Responsive design for mobile devices
-- Custom footer support with Markdown syntax
+- Custom footer and license support with Markdown syntax
 
 **Supported Fields:**
 - `author`: Author name
@@ -120,6 +125,8 @@ footer: © 2024 John Doe. [Project Page](https://example.com)
 - `email`: Contact email address
 - `editor`: Editor name (displayed as "Edited by...")
 - `footer`: Custom footer text (supports Markdown links and formatting). If specified, the default MarkPaper generation message will be hidden.
+- `lisence`: License information displayed at the bottom of the page. If not specified, the following default license is displayed:
+  "This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0)."
 
 #### Text Decoration
 ```markdown
