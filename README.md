@@ -134,6 +134,17 @@ lisence: This work is licensed under CC BY 4.0
 *Italic text*
 ```
 
+#### Paragraph Titles (LaTeX-style)
+```markdown
+::Title:: This is a paragraph with a title. The title is displayed in bold sans-serif followed by the text.
+```
+::Title:: This is a paragraph with a title. The title is displayed in bold sans-serif followed by the text.
+
+**Features:**
+- Separate from the main heading hierarchy (#, ##, etc.)
+- Ideal for organizing content within a section without cluttering the Table of Contents
+- Renders as an inline bold title
+
 #### Lists
 ```markdown
 * Unordered list item 1

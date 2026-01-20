@@ -2,7 +2,7 @@
 // MarkPaper - Markdown to Clean Paper
 // 自作の極小 Markdown パーサ & ローダー
 (function (global) {
-  const LIB_VERSION = '1.0.1';
+  const LIB_VERSION = '1.0.3';
 
   // グローバルな図番号管理
   let globalFigureNum = 0;
@@ -20,7 +20,7 @@
     const fileName = currentFileName || 'unknown file';
     let footerContent = '';
 
-    const defaultLicense = 'This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0).';
+    const defaultLicense = 'This document is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0).';
     const activeLicense = license || defaultLicense;
 
     if (customFooter) {
@@ -91,9 +91,14 @@
       if (paragraphBuffer.length > 0) {
         // バッファの内容を結合して出力
         // 各行をエスケープしてから結合
-        const content = paragraphBuffer.map(line =>
+        let content = paragraphBuffer.map(line =>
           escapeInline(line, currentSectionFootnotes, footnotes)
         ).join('\n');
+
+        // 段落タイトル (LaTeX の \paragraph{}) の処理
+        // ::タイトル:: で始まる場合、特別にスタイリングされた span で囲む
+        content = content.replace(/^::(.+?)::/, '<span class="paragraph-title">$1</span>');
+
         html += `<p>${content}</p>\n`;
         paragraphBuffer = [];
       }

@@ -176,7 +176,7 @@ h5,
 h6 {
     line-height: 1.2;
     /* 見出しは詰めた行間 */
-    font-family: var(--font-serif);
+    font-family: var(--font-sans-serif);
     font-weight: 700;
     /* 垂直リズムに基づいた余白設定 */
     margin-top: calc(var(--baseline-unit) * 1.5);
@@ -370,6 +370,13 @@ p {
     /* 段落間の視覚的分離 */
     text-indent: 0;
     /* 書籍的には1em程度だが、Web表示では0が読みやすい */
+}
+
+/* 段落タイトル (LaTeX の \paragraph{}) */
+.paragraph-title {
+    font-family: var(--font-sans-serif);
+    font-weight: 700;
+    margin-right: 1em;
 }
 
 /* 段落の最初の文字を少し大きく（書籍的装飾、オプション） */
@@ -1093,6 +1100,7 @@ fieldset {
     transition: all 0.3s ease;
     font-size: 0.95rem;
     line-height: 1.4;
+    font-family: var(--font-sans-serif);
 }
 
 .table-of-contents a:hover {
