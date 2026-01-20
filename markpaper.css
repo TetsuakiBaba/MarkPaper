@@ -200,7 +200,7 @@ h1 {
     padding: clamp(0.5rem, 3vw, 2rem) 0;
     box-sizing: border-box;
     /* 特別な文字組み */
-    letter-spacing: 0.05em;
+    letter-spacing: 0em;
     font-weight: 600;
 }
 
@@ -282,35 +282,35 @@ h2 {
     margin-top: calc(var(--baseline-unit) * 2);
     margin-bottom: var(--baseline-unit);
     /* 章見出しの装飾的字間 */
-    letter-spacing: 0.03em;
+    letter-spacing: 0em;
     font-weight: 600;
 }
 
 h3 {
     /* 節見出し */
     font-size: clamp(1.25rem, 3.5vw, 1.75rem);
-    letter-spacing: 0.025em;
+    letter-spacing: 0em;
     font-weight: 500;
 }
 
 h4 {
     /* 小見出し */
     font-size: clamp(1.125rem, 3vw, 1.5rem);
-    letter-spacing: 0.02em;
+    letter-spacing: 0em;
     font-weight: 500;
 }
 
 h5 {
     /* 項目見出し */
     font-size: clamp(1rem, 2.5vw, 1.25rem);
-    letter-spacing: 0.015em;
+    letter-spacing: 0em;
     font-weight: 400;
 }
 
 h6 {
     /* 細項目見出し */
     font-size: clamp(0.875rem, 2vw, 1rem);
-    letter-spacing: 0.01em;
+    letter-spacing: 0em;
     font-weight: 400;
 }
 
