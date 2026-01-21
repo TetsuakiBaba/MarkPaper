@@ -302,7 +302,7 @@
 
     const closeTable = () => {
       if (inTable) {
-        html += '<table>\n';
+        html += '<div class="table-container">\n<table>\n';
 
         // ヘッダー行を出力
         if (tableHeaders.length > 0) {
@@ -326,7 +326,7 @@
           html += '</tbody>\n';
         }
 
-        html += '</table>\n';
+        html += '</table>\n</div>\n';
 
         inTable = false;
         tableRows = [];

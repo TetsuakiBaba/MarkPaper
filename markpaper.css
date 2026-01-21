@@ -117,55 +117,6 @@ body {
 }
 
 /* ============================================
-   Bootstrapライクなブレークポイント補完
-   （clamp()で対応しきれない細かい調整用）
-   ============================================ */
-/* Extra small devices (phones, less than 576px) */
-@media (max-width: 575.98px) {
-    body {
-        max-width: 100%;
-        padding: 0 0.75rem;
-    }
-
-    h1 {
-        line-height: 1.2;
-    }
-
-    p {
-        margin-left: 0.5rem;
-        margin-right: 0.5rem;
-    }
-}
-
-/* Small devices (landscape phones, 576px and up) */
-@media (min-width: 576px) and (max-width: 767.98px) {
-    body {
-        max-width: 540px;
-    }
-}
-
-/* Medium devices (tablets, 768px and up) */
-@media (min-width: 768px) and (max-width: 991.98px) {
-    body {
-        max-width: 720px;
-    }
-}
-
-/* Large devices (desktops, 992px and up) */
-@media (min-width: 992px) and (max-width: 1199.98px) {
-    body {
-        max-width: 960px;
-    }
-}
-
-/* Extra large devices (large desktops, 1200px and up) */
-@media (min-width: 1200px) {
-    body {
-        max-width: 1100px;
-    }
-}
-
-/* ============================================
    見出し設定（書籍的階層デザイン）
    ============================================ */
 h1,
@@ -192,17 +143,7 @@ h6 {
     letter-spacing: 0.02em;
 }
 
-h1 {
-    /* レスポンシブフォントサイズ（書籍的な大きさ） */
-    font-size: clamp(2rem, 6vw, 2.5rem);
-    text-align: center;
-    margin: calc(var(--baseline-unit) * 4) 0 calc(var(--baseline-unit) * 2) 0;
-    padding: clamp(0.5rem, 3vw, 2rem) 0;
-    box-sizing: border-box;
-    /* 特別な文字組み */
-    letter-spacing: 0em;
-    font-weight: 600;
-}
+
 
 /* ============================================
    ドキュメントヘッダー（著者情報等）
@@ -275,6 +216,18 @@ h1 {
     }
 }
 
+h1 {
+    /* レスポンシブフォントサイズ（書籍的な大きさ） */
+    font-size: clamp(2rem, 6vw, 2.5rem);
+    text-align: center;
+    margin: calc(var(--baseline-unit) * 4) 0 calc(var(--baseline-unit) * 2) 0;
+    padding: clamp(0.5rem, 3vw, 2rem) 0;
+    box-sizing: border-box;
+    /* 特別な文字組み */
+    letter-spacing: 0.02em;
+    font-weight: 200;
+}
+
 h2 {
     /* 章見出しとしての品格 */
     font-size: clamp(1.5rem, 4vw, 2rem);
@@ -282,36 +235,36 @@ h2 {
     margin-top: calc(var(--baseline-unit) * 2);
     margin-bottom: var(--baseline-unit);
     /* 章見出しの装飾的字間 */
-    letter-spacing: 0em;
-    font-weight: 600;
+    letter-spacing: 0.02em;
+    font-weight: 200;
 }
 
 h3 {
     /* 節見出し */
     font-size: clamp(1.25rem, 3.5vw, 1.75rem);
-    letter-spacing: 0em;
-    font-weight: 500;
+    letter-spacing: 0.02em;
+    font-weight: 200;
 }
 
 h4 {
     /* 小見出し */
     font-size: clamp(1.125rem, 3vw, 1.5rem);
-    letter-spacing: 0em;
-    font-weight: 500;
+    letter-spacing: 0.02em;
+    font-weight: 200;
 }
 
 h5 {
     /* 項目見出し */
     font-size: clamp(1rem, 2.5vw, 1.25rem);
-    letter-spacing: 0em;
-    font-weight: 400;
+    letter-spacing: 0.02em;
+    font-weight: 200;
 }
 
 h6 {
     /* 細項目見出し */
     font-size: clamp(0.875rem, 2vw, 1rem);
-    letter-spacing: 0em;
-    font-weight: 400;
+    letter-spacing: 0.02em;
+    font-weight: 200;
 }
 
 /* タイトルページの後の最初の要素を新しいページとして開始 */
@@ -375,7 +328,7 @@ p {
 /* 段落タイトル (LaTeX の \paragraph{}) */
 .paragraph-title {
     font-family: var(--font-sans-serif);
-    font-weight: 700;
+    font-weight: 500;
     margin-right: 1em;
 }
 
@@ -398,6 +351,62 @@ small,
 sub,
 sup {
     font-size: 75%;
+}
+
+/* ============================================
+   Bootstrapライクなブレークポイント補完
+   （clamp()で対応しきれない細かい調整用）
+   ============================================ */
+/* Extra small devices (phones, less than 576px) */
+@media (max-width: 575.98px) {
+    body {
+        max-width: 100%;
+        padding: 0 0.75rem;
+    }
+
+    h1 {
+        line-height: 1.2;
+    }
+
+    p {
+        margin-left: 0.5rem;
+        margin-right: 0.5rem;
+        text-align: left;
+        text-justify: auto;
+    }
+}
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 576px) and (max-width: 767.98px) {
+    body {
+        max-width: 540px;
+    }
+
+    p {
+        text-align: left;
+        text-justify: auto;
+    }
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) and (max-width: 991.98px) {
+    body {
+        max-width: 720px;
+    }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+    body {
+        max-width: 960px;
+    }
+}
+
+/* Extra large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) {
+    body {
+        max-width: 1100px;
+    }
 }
 
 /* ============================================
@@ -811,6 +820,7 @@ pre {
     border: 1px solid var(--shadow-light);
 }
 
+/* インラインコード（改良版） */
 code,
 kbd,
 samp {
@@ -820,8 +830,9 @@ samp {
     background-color: var(--code-background);
     border-radius: 3px;
 
-    /* インラインコードの調整 */
+    /* インラインコードの調整: 常時折り返しを有効化 */
     white-space: pre-wrap;
+    word-break: break-all;
     overflow-wrap: break-word;
     font-feature-settings: "liga" 0;
     letter-spacing: 0;
@@ -864,6 +875,7 @@ th {
     vertical-align: top;
 
     /* セル内の文字組み */
+    word-break: break-all;
     overflow-wrap: break-word;
     word-wrap: break-word;
 }
@@ -1101,6 +1113,7 @@ fieldset {
     font-size: 0.95rem;
     line-height: 1.4;
     font-family: var(--font-sans-serif);
+    font-weight: 200;
 }
 
 .table-of-contents a:hover {
@@ -1112,7 +1125,7 @@ fieldset {
 .table-of-contents a.active {
     background: var(--border-color);
     color: var(--text-color);
-    font-weight: bold;
+    font-weight: 500;
 }
 
 /* オーバーレイ */
@@ -1285,7 +1298,9 @@ code {
     font-family: var(--font-monospace);
     font-size: 0.9em;
     color: var(--code-text-color);
-    white-space: nowrap;
+    white-space: pre-wrap;
+    word-break: break-all;
+    overflow-wrap: break-word;
 }
 
 /* コードブロック */
@@ -1377,6 +1392,8 @@ table th {
     border-bottom: 2px solid var(--border-color);
     border-right: 1px solid var(--border-color);
     font-family: var(--font-sans-serif);
+    word-break: break-all;
+    overflow-wrap: break-word;
 }
 
 table th:last-child {
@@ -1388,6 +1405,8 @@ table td {
     border-bottom: 1px solid var(--border-color);
     border-right: 1px solid var(--border-color);
     vertical-align: top;
+    word-break: break-all;
+    overflow-wrap: break-word;
 }
 
 table td:last-child {
@@ -1408,9 +1427,17 @@ table code {
     background-color: var(--code-background);
     padding: 0.1em 0.3em;
     border-radius: 3px;
+    white-space: pre-wrap;
+    word-break: break-all;
 }
 
 /* レスポンシブテーブル */
+.table-container {
+    overflow-x: auto;
+    margin: var(--baseline-unit) 0;
+    -webkit-overflow-scrolling: touch;
+}
+
 @media (max-width: 575.98px) {
     table {
         font-size: 0.8rem;

@@ -37,6 +37,7 @@ To create beautiful documents, all you need is to write Markdown text. MarkPaper
 Open the index.html file with a file parameter such as `file=your_markdown_file` to load the Markdown content. For example, you can use `file=index.md` in the URL to load the `index.md` file.
 > ex. `https://yourdomain.com/path/to/index.html?file=index.md`
 
+<code>index.md is the default file that will be loaded if no file parameter is specified.</code> 
 ### CDNs
 CDN link to include the script in your HTML:
 ```
