@@ -2,7 +2,7 @@
 // MarkPaper - Markdown to Clean Paper
 // 自作の極小 Markdown パーサ & ローダー
 (function (global) {
-  const LIB_VERSION = '1.0.3';
+  const LIB_VERSION = '1.0.4';
 
   // グローバルな図番号管理
   let globalFigureNum = 0;

@@ -27,7 +27,7 @@
     /* アクセントカラーと統一 */
 
     /* セマンティック色 */
-    --secondary-text-color: #6c757d;
+    */ --secondary-text-color: #6c757d;
     --muted-text-color: #868e96;
     --light-gray-color: #f8f9fa;
     --medium-gray-color: #e9ecef;
@@ -463,6 +463,8 @@ hr {
    ============================================ */
 a {
     text-decoration: none;
+    border-bottom: 1px solid color-mix(in srgb, var(--accent-color), transparent 80%);
+    /* borderの透明度の設定 */
     color: var(--accent-color);
     font-weight: bold;
     /* 長いURLの改行対応 */
@@ -1495,13 +1497,15 @@ table code {
 .markpaper-footer a {
     color: var(--accent-color);
     text-decoration: none;
+    border-bottom: 1px solid color-mix(in srgb, var(--accent-color), transparent 80%);
     font-weight: 500;
-    transition: color 0.2s ease;
+    transition: color 0.2s ease, border-color 0.2s ease;
 }
 
 .markpaper-footer a:hover {
     color: var(--accent-hover-color);
-    text-decoration: underline;
+    border-bottom-color: color-mix(in srgb, var(--accent-hover-color), transparent 80%);
+    text-decoration: none;
 }
 
 .markpaper-footer a:visited {
