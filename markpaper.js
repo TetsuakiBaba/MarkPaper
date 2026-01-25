@@ -2,7 +2,7 @@
 // MarkPaper - Markdown to Clean Paper
 // 自作の極小 Markdown パーサ & ローダー
 (function (global) {
-  const LIB_VERSION = '1.0.4';
+  const LIB_VERSION = '1.0.5';
 
   // グローバルな図番号管理
   let globalFigureNum = 0;
@@ -932,7 +932,7 @@
     // URLの自動リンク化（http, https, ftp対応）
     // 既にHTMLタグ内にあるURLは処理しないように改良
     const urlPattern = /(https?:\/\/[^\s<>"']+|ftp:\/\/[^\s<>"']+)/g;
-    return footnoteProcessed.replace(urlPattern, (match, url, offset) => {
+    const finalHtml = footnoteProcessed.replace(urlPattern, (match, url, offset) => {
       // マッチした部分の前後をチェックして、既にaタグ内にあるかどうかを判定
       const beforeMatch = footnoteProcessed.substring(0, offset);
       const afterMatch = footnoteProcessed.substring(offset + match.length);
@@ -959,6 +959,22 @@
 
       return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
     });
+
+    // かな文字を個別に span で囲む（CSSでサイズ調整可能にするため）
+    const tokens = finalHtml.split(/(<[^>]+>)/g);
+    let inCode = false;
+    return tokens.map(token => {
+      if (token.startsWith('<')) {
+        if (token.startsWith('<code') || token.startsWith('<pre')) inCode = true;
+        if (token.startsWith('</code') || token.startsWith('</pre')) inCode = false;
+        return token;
+      }
+      if (inCode) return token;
+      // ひらがな (\u3040-\u309F) と カタカナ (\u30A0-\u30FF) を個別に span で囲む
+      return token.replace(/[\u3040-\u309F\u30A0-\u30FF]/g, match => {
+        return `<span class="kana">${match}</span>`;
+      });
+    }).join('');
   }
 
   // --- Markdown ファイルをフェッチして変換 ------------------------
