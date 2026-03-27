@@ -52,8 +52,13 @@ CDN link to include the script in your HTML:
 
 - **Responsive Design**: Supports mobile to desktop devices
 - **Hamburger Menu**: Access table of contents from the circular menu in the top right
+- **Print Option**: Open the browser print dialog from the menu and save the current document as PDF
 - **Auto Table of Contents Generation**: Automatically generates TOC from h2 headings
 - **Extended Markdown Syntax**: Rich syntax support including footnotes, alerts, code blocks
+
+### Save as PDF
+
+Use the `Print` button in the side menu to open your browser's print dialog. From there, choose `Save as PDF` as the destination. MarkPaper applies print-specific styles so the hamburger button, side menu, and overlay are excluded from the exported document.
 
 ## Library Usage
 
@@ -455,4 +460,4 @@ This project aims to implement a simple and lightweight Markdown parser with ele
 - [x] ~~Safe HTML tag support~~ (Completed)
 - [ ] Mathematical notation support
 - [ ] Dark mode support
-- [ ] Print style optimization
+- [x] ~~Print style optimization~~ (Completed)

@@ -27,7 +27,7 @@
     /* アクセントカラーと統一 */
 
     /* セマンティック色 */
-    */ --secondary-text-color: #6c757d;
+    --secondary-text-color: #6c757d;
     --muted-text-color: #868e96;
     --light-gray-color: #f8f9fa;
     --medium-gray-color: #e9ecef;
@@ -49,6 +49,8 @@
     --menu-border: rgba(108, 117, 125, 0.4);
     --menu-border-hover: rgba(108, 117, 125, 0.6);
     --menu-line-color: rgba(108, 117, 125, 0.6);
+    --persistent-menu-width: 300px;
+    --persistent-menu-gap: 40px;
 
     /* GitHubアラート用色（彩度調整版） */
     --alert-note-border: #5889b7;
@@ -1054,8 +1056,8 @@ fieldset {
 .side-menu {
     position: fixed;
     top: 0;
-    right: -300px;
-    width: 300px;
+    right: calc(var(--persistent-menu-width) * -1);
+    width: var(--persistent-menu-width);
     height: 100vh;
     background: var(--background-color);
     border-left: 1px solid var(--border-color);
@@ -1072,7 +1074,6 @@ fieldset {
 
 .side-menu-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     padding: 20px;
     border-bottom: 1px solid var(--border-color);
@@ -1083,6 +1084,32 @@ fieldset {
 .side-menu-header h3 {
     margin: 0;
     font-size: 1.2rem;
+    color: var(--text-color);
+}
+
+.menu-actions {
+    display: flex;
+    justify-content: flex-start;
+    padding: 12px 20px 16px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--background-color);
+}
+
+.menu-action-btn {
+    margin: 0;
+    padding: 0.45rem 0.8rem;
+    font-size: 0.85rem;
+    line-height: 1.2;
+    background: transparent;
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.menu-action-btn:hover,
+.menu-action-btn:focus-visible {
+    background: var(--border-color);
     color: var(--text-color);
 }
 
@@ -1140,6 +1167,25 @@ fieldset {
     visibility: visible;
 }
 
+@media (min-width: 1200px) {
+    body {
+        width: min(1100px, calc(100vw - var(--persistent-menu-width) - var(--persistent-menu-gap) - 2rem));
+        max-width: none;
+        margin-left: auto;
+        margin-right: calc(var(--persistent-menu-width) + var(--persistent-menu-gap));
+    }
+
+    .side-menu {
+        right: 0;
+        box-shadow: none;
+    }
+
+    .hamburger-btn,
+    .overlay {
+        display: none !important;
+    }
+}
+
 /* レスポンシブ対応 */
 @media (max-width: 575.98px) {
     .side-menu {
@@ -1152,6 +1198,71 @@ fieldset {
         right: 15px;
         width: 45px;
         height: 45px;
+    }
+
+    .side-menu-header {
+        padding-bottom: 16px;
+    }
+
+    .menu-actions {
+        padding-top: 0;
+    }
+}
+
+@media print {
+    @page {
+        margin: 16mm 14mm 18mm;
+    }
+
+    body {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+        background: #fff;
+    }
+
+    .hamburger-btn,
+    .side-menu,
+    .overlay {
+        display: none !important;
+    }
+
+    article,
+    #content,
+    .markpaper-preview-content {
+        max-width: none;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    a,
+    a:visited {
+        color: inherit;
+        text-decoration: underline;
+    }
+
+    pre,
+    blockquote,
+    table,
+    figure,
+    img,
+    .alert,
+    .code-block-container,
+    .markpaper-footer {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    pre,
+    .code-block-container {
+        overflow: visible;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    table {
+        width: 100%;
     }
 }
 

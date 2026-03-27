@@ -14,6 +14,41 @@
 
   // 現在読み込まれているファイル名を保存
   let currentFileName = '';
+  const defaultDocumentTitle = typeof document !== 'undefined' ? document.title : 'MarkPaper';
+  const PERSISTENT_MENU_MEDIA_QUERY = '(min-width: 1200px)';
+
+  function updateDocumentTitle(fileName = '') {
+    if (typeof document === 'undefined') {
+      return;
+    }
+
+    document.title = fileName ? `${fileName} - MarkPaper` : defaultDocumentTitle;
+  }
+
+  function isPersistentMenuLayout() {
+    return typeof window !== 'undefined' && window.matchMedia(PERSISTENT_MENU_MEDIA_QUERY).matches;
+  }
+
+  function syncMenuLayoutState() {
+    if (typeof document === 'undefined') {
+      return;
+    }
+
+    const sideMenu = document.querySelector('.side-menu');
+    const overlay = document.querySelector('.overlay');
+    const hamburger = document.querySelector('.hamburger-btn');
+
+    if (overlay) overlay.classList.remove('show');
+    if (hamburger) hamburger.classList.remove('active');
+
+    if (sideMenu) {
+      if (isPersistentMenuLayout()) {
+        sideMenu.classList.add('open');
+      } else {
+        sideMenu.classList.remove('open');
+      }
+    }
+  }
 
   // フッター生成関数
   function generateFooter(customFooter = '', license = '') {
@@ -1057,11 +1092,16 @@
     const hamburger = document.querySelector('.hamburger-btn');
     const sideMenu = document.querySelector('.side-menu');
     const overlay = document.querySelector('.overlay');
+    const printButton = document.querySelector('.menu-action-btn[data-action="print"]');
+    const persistentMenuMediaQuery = window.matchMedia(PERSISTENT_MENU_MEDIA_QUERY);
 
     // ハンバーガーメニューのクリックイベント
     if (hamburger) {
       hamburger.addEventListener('click', (e) => {
         e.preventDefault();
+        if (isPersistentMenuLayout()) {
+          return;
+        }
         sideMenu.classList.toggle('open');
         overlay.classList.toggle('show');
         hamburger.classList.toggle('active');
@@ -1083,6 +1123,24 @@
         closeMenu();
       }
     });
+
+    if (printButton) {
+      printButton.addEventListener('click', () => {
+        closeMenu();
+        window.setTimeout(() => {
+          window.print();
+        }, 120);
+      });
+    }
+
+    window.addEventListener('beforeprint', closeMenu);
+    syncMenuLayoutState();
+
+    if (typeof persistentMenuMediaQuery.addEventListener === 'function') {
+      persistentMenuMediaQuery.addEventListener('change', syncMenuLayoutState);
+    } else if (typeof persistentMenuMediaQuery.addListener === 'function') {
+      persistentMenuMediaQuery.addListener(syncMenuLayoutState);
+    }
   }
 
   // メニューを閉じる関数
@@ -1090,7 +1148,13 @@
     const sideMenu = document.querySelector('.side-menu');
     const overlay = document.querySelector('.overlay');
     const hamburger = document.querySelector('.hamburger-btn');
-    if (sideMenu) sideMenu.classList.remove('open');
+    if (sideMenu) {
+      if (isPersistentMenuLayout()) {
+        sideMenu.classList.add('open');
+      } else {
+        sideMenu.classList.remove('open');
+      }
+    }
     if (overlay) overlay.classList.remove('show');
     if (hamburger) hamburger.classList.remove('active');
   }
@@ -1181,9 +1245,13 @@
     sideMenu.id = 'side-menu';
     sideMenu.className = 'side-menu';
     sideMenu.innerHTML = `
+     <div class="menu-actions">
+        <button class="menu-action-btn" type="button" data-action="print" title="印刷ダイアログを開いてPDF保存できます">Print</button>
+      </div>
       <div class="side-menu-header">
         <h3>Menu</h3>
       </div>
+     
       <ul id="table-of-contents" class="table-of-contents">
       </ul>
     `;
@@ -1233,6 +1301,7 @@
 
     // ファイル名を保存（パスからファイル名のみを抽出）
     currentFileName = path.split('/').pop();
+    updateDocumentTitle(currentFileName);
 
     fetch(path)
       .then((res) => {
@@ -1289,6 +1358,7 @@
 
         const html = mdToHTML(errorMessage.trim());
         document.getElementById(targetId).innerHTML = html;
+        updateDocumentTitle();
       });
   }
 
@@ -1333,7 +1403,8 @@
     createDynamicElements: createDynamicElements,
     generateTableOfContents: generateTableOfContents,
     initHamburgerMenu: initHamburgerMenu,
-    initScrollSpy: initScrollSpy
+    initScrollSpy: initScrollSpy,
+    updateDocumentTitle: updateDocumentTitle
   };
 
   // グローバルスコープに公開
