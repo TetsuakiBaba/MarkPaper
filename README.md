@@ -219,11 +219,17 @@ https://example.com
 ```markdown
 ![Caption text](image.jpg)
 ![](image.jpg){width="50%"}
+
+:::images
+![Left image](image-left.jpg)
+![Right image](image-right.jpg)
+:::
 ```
 
 **Features:**
 - Automatic figure numbering when caption is specified (Figure 1, Figure 2...)
 - Width specification with `{width=...}` (e.g., `50%`, `300px`)
+- Use `:::images` ... `:::` to place multiple images side by side on wide screens
 - Responsive design (auto-resize according to screen width)
 - Center-aligned display with rounded corners and borders
 
@@ -231,12 +237,22 @@ https://example.com
 ```markdown
 ![Sample image caption](https://tetsuakibaba.jp/assets/images/research/2021rc.png)
 ![](https://tetsuakibaba.jp/assets/images/research/2021rc.png){width="50%"}
+
+:::images
+![Sample image 1](https://tetsuakibaba.jp/assets/images/research/2021rc.png)
+![Sample image 2](https://tetsuakibaba.jp/assets/images/research/2021rc.png)
+:::
 ```
 
 **Result: Below is an example of actually displayed image.**
 ![Sample image caption](https://tetsuakibaba.jp/assets/images/research/2021rc.png)
 
 ![](https://tetsuakibaba.jp/assets/images/research/2021rc.png){width="50%"}
+
+:::images
+![Sample image 1](https://tetsuakibaba.jp/assets/images/research/2021rc.png)
+![Sample image 2](https://tetsuakibaba.jp/assets/images/research/2021rc.png)
+:::
 
 #### Tables
 ```markdown

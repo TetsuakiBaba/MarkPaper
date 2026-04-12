@@ -780,10 +780,42 @@ figcaption {
     break-inside: avoid;
 }
 
+.image-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: calc(var(--baseline-unit) * 0.75);
+    margin: calc(var(--baseline-unit) * 1.5) 0;
+}
+
+.image-row .image-figure,
+.image-figure-inline {
+    flex: 1 1 220px;
+    margin: 0;
+    clear: none;
+}
+
+.image-row .image-figure img,
+.image-figure-inline img {
+    display: block;
+    margin-bottom: calc(var(--baseline-unit) * 0.125);
+}
+
 .image-figure figcaption {
     font-weight: 500;
     padding-top: calc(var(--baseline-unit) * 0.125);
     margin-top: calc(var(--baseline-unit) * 0.125);
+}
+
+@media (max-width: 768px) {
+    .image-row {
+        gap: calc(var(--baseline-unit) * 0.5);
+    }
+
+    .image-row .image-figure,
+    .image-figure-inline {
+        flex-basis: 100%;
+    }
 }
 
 /* ============================================

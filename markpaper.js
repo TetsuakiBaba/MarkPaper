@@ -2,7 +2,7 @@
 // MarkPaper - Markdown to Clean Paper
 // 自作の極小 Markdown パーサ & ローダー
 (function (global) {
-  const LIB_VERSION = '1.0.5';
+  const LIB_VERSION = '1.0.6';
 
   // グローバルな図番号管理
   let globalFigureNum = 0;
@@ -72,6 +72,79 @@
 `;
   }
 
+  const IMAGE_MARKDOWN_PATTERN = /^!\[([^\]]*)\]\(([^)]+)\)\s*(?:\{([^}]+)\})?$/;
+
+  function parseImageAttributes(attrs = '') {
+    let width = '';
+
+    if (attrs) {
+      const widthMatch = attrs.match(/\bwidth\s*=\s*"?([^"}]+)"?/i);
+      if (widthMatch && widthMatch[1]) {
+        width = widthMatch[1].trim();
+      }
+    }
+
+    return { width };
+  }
+
+  function parseImageMarkdown(text) {
+    const match = text.match(IMAGE_MARKDOWN_PATTERN);
+    if (!match) {
+      return null;
+    }
+
+    return {
+      alt: match[1] || '',
+      src: (match[2] || '').trim(),
+      attrs: match[3] || ''
+    };
+  }
+
+  function renderImageFigure(image, options = {}) {
+    if (!image) {
+      return '';
+    }
+
+    const { alt = '', src = '', attrs = '' } = image;
+    const { inRow = false } = options;
+    const { width } = parseImageAttributes(attrs);
+
+    const imageStyleRules = [];
+    if (width) {
+      imageStyleRules.push(`width: ${_escapeHTML(width)};`);
+    } else if (inRow) {
+      imageStyleRules.push('width: 100%;');
+    }
+
+    const style = imageStyleRules.length > 0
+      ? ` style="${imageStyleRules.join(' ')}"`
+      : '';
+    const figureClass = inRow ? 'image-figure image-figure-inline' : 'image-figure';
+
+    let figureHtml = `<figure class="${figureClass}">`;
+    figureHtml += `<img src="${_escapeHTML(src)}" alt="${_escapeHTML(alt)}"${style} />`;
+
+    if (alt && alt.trim()) {
+      globalFigureNum++;
+      figureHtml += `<figcaption>Fig ${globalFigureNum} ${_escapeHTML(alt)}</figcaption>`;
+    }
+
+    figureHtml += `</figure>`;
+    return figureHtml;
+  }
+
+  function renderImageRow(images) {
+    if (!images || images.length === 0) {
+      return '';
+    }
+
+    const figures = images
+      .map(image => renderImageFigure(image, { inRow: true }))
+      .join('\n');
+
+    return `<div class="image-row">\n${figures}\n</div>\n`;
+  }
+
   // --- 極小 Markdown → HTML 変換関数 ----------------------------
   function mdToHTML(md) {
     // 変換開始時に図番号をリセット
@@ -118,6 +191,8 @@
     let codeLanguage = '';
     let codeContent = [];
     let codeBlockFence = ''; // フェンスの種類を記録（```または````）
+    let inImageRow = false;
+    let imageRowItems = [];
 
     // 段落処理用のバッファ
     let paragraphBuffer = [];
@@ -386,6 +461,14 @@
       }
     };
 
+    const closeImageRow = () => {
+      if (inImageRow) {
+        html += renderImageRow(imageRowItems);
+        inImageRow = false;
+        imageRowItems = [];
+      }
+    };
+
     // 脚注定義を収集する前処理
     lines.forEach((line) => {
       const footnoteDefMatch = line.match(/^\[\^([^\]]+)\]:\s*(.+)$/);
@@ -417,6 +500,8 @@
       if (line.trim() === '' || line === '') {
         if (inCodeBlock) {
           codeContent.push('');
+        } else if (inImageRow) {
+          // 画像行ブロックでは空行を許容する
         } else if (inAlert) {
           // アラート内の空行は改行として追加
           alertContent.push('');
@@ -430,6 +515,21 @@
           closeTable(); // 空行でテーブルも閉じる
         }
         return;
+      }
+
+      if (inImageRow) {
+        if (line.match(/^:::\s*$/)) {
+          closeImageRow();
+          return;
+        }
+
+        const imageItem = parseImageMarkdown(line);
+        if (imageItem) {
+          imageRowItems.push(imageItem);
+          return;
+        }
+
+        closeImageRow();
       }
 
       // 脚注定義行はスキップ
@@ -466,6 +566,19 @@
       // コードブロック内の処理
       if (inCodeBlock) {
         codeContent.push(line);
+        return;
+      }
+
+      if (line.match(/^:::images\s*$/i)) {
+        flushParagraphBuffer();
+        closeList();
+        closeAlert();
+        closeBlockquote();
+        closeTable();
+        closeCodeBlock();
+        closeImageRow();
+        inImageRow = true;
+        imageRowItems = [];
         return;
       }
 
@@ -705,34 +818,15 @@
         closeList();
         closeAlert();
         closeBlockquote();
-        const match = line.match(/^!\[([^\]]*)\]\(([^)]+)\)\s*(?:\{([^}]+)\})?$/);
-        if (!match) {
+        const image = parseImageMarkdown(line);
+        if (!image) {
           // マッチしなかった場合(厳密なチェックで弾かれた場合など)は段落として処理
           // ただし既にflushしているので、この行をバッファに入れて戻る
           paragraphBuffer.push(line);
           return;
         }
 
-        const alt = match[1];
-        const src = match[2];
-        const attrs = match[3];
-
-        let style = '';
-        if (attrs) {
-          const widthMatch = attrs.match(/width\s*=\s*"?([^"}]+)"?/);
-          if (widthMatch && widthMatch[1]) {
-            style = ` style="width: ${_escapeHTML(widthMatch[1])};"`;
-          }
-        }
-
-        html += `<figure class="image-figure">`;
-        html += `<img src="${src}" alt="${_escapeHTML(alt)}"${style} />`;
-        if (alt && alt.trim()) {
-          // キャプション付き画像
-          globalFigureNum++;
-          html += `<figcaption>Fig ${globalFigureNum} ${_escapeHTML(alt)}</figcaption>`;
-        }
-        html += `</figure>\n`;
+        html += `${renderImageFigure(image)}\n`;
       }
       // アラート以外の行が来たらアラートを閉じる
       else if (inAlert) {
@@ -767,6 +861,7 @@
     closeBlockquote();
     closeTable();
     closeCodeBlock();
+    closeImageRow();
     // 最後のセクションの脚注を追加
     addFootnotesToSection();
 
@@ -931,32 +1026,13 @@
 
     // インラインコードは既に処理済みなのでスキップ
 
-    // テキストリンクの処理 [テキスト](url) → <a href="url">テキスト</a>（脚注よりも先に処理）
-    const linkProcessed = strikethrough.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
-
-    // 画像の処理 ![alt](src) → <img src="src" alt="alt"> またはキャプション付き画像
-    const imageProcessed = linkProcessed.replace(/!\[([^\]]*)\]\(([^)]+)\)\s*(?:\{([^}]+)\})?/g, (match, alt, src, attrs) => {
-      let style = '';
-      if (attrs) {
-        const widthMatch = attrs.match(/width\s*=\s*"?([^"}]+)"?/);
-        if (widthMatch && widthMatch[1]) {
-          style = ` style="width: ${_escapeHTML(widthMatch[1])};"`;
-        }
-      }
-
-      let figureHtml = `<figure class="image-figure">`;
-      figureHtml += `<img src="${src}" alt="${_escapeHTML(alt)}"${style} />`;
-      if (alt && alt.trim()) {
-        // キャプション付き画像
-        globalFigureNum++;
-        figureHtml += `<figcaption>Fig ${globalFigureNum} ${_escapeHTML(alt)}</figcaption>`;
-      }
-      figureHtml += `</figure>`;
-      return figureHtml;
+    // テキストリンクの処理 [テキスト](url) → <a href="url">テキスト</a>（画像記法は除外）
+    const linkProcessed = strikethrough.replace(/(^|[^!])\[([^\]]+)\]\(([^)]+)\)/g, (match, prefix, label, url) => {
+      return `${prefix}<a href="${url}" target="_blank" rel="noopener noreferrer">${label}</a>`;
     });
 
     // 脚注の処理 [^1] → <sup><a href="#footnote-1">1</a></sup>
-    const footnoteProcessed = imageProcessed.replace(/\[\^([^\]]+)\]/g, (match, footnoteId) => {
+    const footnoteProcessed = linkProcessed.replace(/\[\^([^\]]+)\]/g, (match, footnoteId) => {
       // 現在のセクションの脚注リストに追加
       if (currentFootnotes && !currentFootnotes.includes(footnoteId)) {
         currentFootnotes.push(footnoteId);
