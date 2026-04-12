@@ -182,16 +182,22 @@ lisence: This work is licensed under CC BY 4.0
 
 #### Footnotes
 ```markdown
+This is text with a footnote \footnote{This is the footnote content.}
+```
+
+```markdown
 This is text with a footnote[^1].
 
 [^1]: This is the footnote content.
 ```
+This is text with a footnote \footnote{This is the footnote content.}
+
 This is text with a footnote[^1].
 
-[^1]: Footnotes are automatically placed at the end of the corresponding heading section.
-
 **Features:**
-- Footnotes are automatically placed at the end of the corresponding heading section
+- `\footnote{...}` syntax is supported
+- Legacy `[^1]` and `[^1]: ...` syntax remains available for compatibility
+- Footnotes are automatically placed at the end of the corresponding section, subsection, or subsubsection
 - Properly managed between sections
 - Displayed as clickable links
 

@@ -168,9 +168,15 @@
     let sectionNum = 0;  // ### の番号
 
     // 脚注管理用の変数
-    let footnotes = {};  // 脚注の定義を保存
+    let footnotes = {
+      items: {},
+      createInlineFootnote: null,
+      getLabel: null
+    };  // 脚注の定義とラベル解決を保存
     let currentSectionFootnotes = [];  // 現在のセクションの脚注
     let currentSectionLevel = 0;  // 現在のセクションレベル (2=h2, 3=h3, etc.)
+    let inlineFootnoteCounter = 0;
+    let maxLegacyFootnoteNumber = 0;
 
     // アラート処理用の変数
     let inAlert = false;
@@ -473,18 +479,47 @@
     lines.forEach((line) => {
       const footnoteDefMatch = line.match(/^\[\^([^\]]+)\]:\s*(.+)$/);
       if (footnoteDefMatch) {
-        footnotes[footnoteDefMatch[1]] = footnoteDefMatch[2];
+        const footnoteId = footnoteDefMatch[1];
+        footnotes.items[footnoteId] = {
+          content: footnoteDefMatch[2],
+          label: footnoteId
+        };
+
+        if (/^\d+$/.test(footnoteId)) {
+          maxLegacyFootnoteNumber = Math.max(maxLegacyFootnoteNumber, Number(footnoteId));
+        }
       }
     });
+
+    let nextInlineFootnoteNumber = maxLegacyFootnoteNumber + 1 || 1;
+
+    footnotes.createInlineFootnote = (content) => {
+      inlineFootnoteCounter++;
+      const footnoteId = `auto-${inlineFootnoteCounter}`;
+
+      footnotes.items[footnoteId] = {
+        content,
+        label: String(nextInlineFootnoteNumber++)
+      };
+
+      return footnoteId;
+    };
+
+    footnotes.getLabel = (footnoteId) => {
+      const footnote = footnotes.items[footnoteId];
+      return footnote ? footnote.label : footnoteId;
+    };
 
     // 脚注HTMLを生成する関数
     const addFootnotesToSection = () => {
       if (currentSectionFootnotes.length > 0) {
         html += '<div class="footnotes">\n';
         currentSectionFootnotes.forEach((footnoteId) => {
-          if (footnotes[footnoteId]) {
+          const footnote = footnotes.items[footnoteId];
+
+          if (footnote) {
             html += `<div class="footnote" id="footnote-${footnoteId}">`;
-            html += `<sup>${footnoteId}</sup> ${escapeInline(footnotes[footnoteId], [], footnotes)}`;
+            html += `<sup>${_escapeHTML(footnote.label)}</sup> ${escapeInline(footnote.content, [], footnotes)}`;
             html += `</div>\n`;
           }
         });
@@ -978,15 +1013,45 @@
     return titles[type] || 'Alert';
   }  // --- インライン記法の簡易置換 (bold/italic/URL/footnote/link) ----------------------
   function escapeInline(text, currentFootnotes = [], footnoteDefinitions = {}) {
-    // 1. まずインラインコードを処理（HTMLタグが中にあってもエスケープされるように）
+    const inlineProtectionMap = new Map();
+    let inlineProtectionCounter = 0;
+
+    const createInlineProtection = (html) => {
+      const protectionKey = `@@INLINE_PROTECT_${inlineProtectionCounter++}@@`;
+      inlineProtectionMap.set(protectionKey, html);
+      return protectionKey;
+    };
+
+    // 1. まずインラインコードを保護（後続の脚注やURL変換の対象外にする）
     let processed = text.replace(/`([^`]+)`/g, (match, code) => {
-      return `<code>${_escapeHTML(code)}</code>`;
+      return createInlineProtection(`<code>${_escapeHTML(code)}</code>`);
     });
 
-    // 2. まず安全なHTMLタグをサニタイズ（危険なタグ・属性を除去）
+    // 2. \footnote{...} を内部脚注として先に退避する
+    processed = processed.replace(/\\footnote\{((?:[^{}]|\\[{}])*)\}/g, (match, rawContent) => {
+      if (!footnoteDefinitions || typeof footnoteDefinitions.createInlineFootnote !== 'function') {
+        return match;
+      }
+
+      const footnoteContent = rawContent.replace(/\\([{}])/g, '$1').trim();
+      const footnoteId = footnoteDefinitions.createInlineFootnote(footnoteContent);
+      const footnoteLabel = typeof footnoteDefinitions.getLabel === 'function'
+        ? footnoteDefinitions.getLabel(footnoteId)
+        : footnoteId;
+
+      if (currentFootnotes && !currentFootnotes.includes(footnoteId)) {
+        currentFootnotes.push(footnoteId);
+      }
+
+      return createInlineProtection(
+        `<sup><a href="#footnote-${footnoteId}" class="footnote-ref">${_escapeHTML(footnoteLabel)}</a></sup>`
+      );
+    });
+
+    // 3. まず安全なHTMLタグをサニタイズ（危険なタグ・属性を除去）
     const sanitizedHTML = sanitizeHTML(processed);
 
-    // 3. 残りの < > & をエスケープ（ただし、許可されたHTMLタグは保護）
+    // 4. 残りの < > & をエスケープ（ただし、許可されたHTMLタグは保護）
     let escaped = sanitizedHTML;
 
     // 許可されたHTMLタグを一時的に保護
@@ -1015,7 +1080,7 @@
       escaped = escaped.replace(protectionKey, () => originalTag);
     });
 
-    // 4. Markdown記法の処理
+    // 5. Markdown記法の処理
     // **bold**
     const bold = escaped.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
     // *italic*
@@ -1037,7 +1102,10 @@
       if (currentFootnotes && !currentFootnotes.includes(footnoteId)) {
         currentFootnotes.push(footnoteId);
       }
-      return `<sup><a href="#footnote-${footnoteId}" class="footnote-ref">${footnoteId}</a></sup>`;
+      const footnoteLabel = typeof footnoteDefinitions.getLabel === 'function'
+        ? footnoteDefinitions.getLabel(footnoteId)
+        : footnoteId;
+      return `<sup><a href="#footnote-${footnoteId}" class="footnote-ref">${_escapeHTML(footnoteLabel)}</a></sup>`;
     });
 
     // URLの自動リンク化（http, https, ftp対応）
@@ -1071,8 +1139,13 @@
       return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
     });
 
+    let restoredHtml = finalHtml;
+    inlineProtectionMap.forEach((originalHtml, protectionKey) => {
+      restoredHtml = restoredHtml.split(protectionKey).join(originalHtml);
+    });
+
     // かな文字を個別に span で囲む（CSSでサイズ調整可能にするため）
-    const tokens = finalHtml.split(/(<[^>]+>)/g);
+    const tokens = restoredHtml.split(/(<[^>]+>)/g);
     let inCode = false;
     return tokens.map(token => {
       if (token.startsWith('<')) {
