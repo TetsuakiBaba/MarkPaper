@@ -39,7 +39,7 @@
     --shadow-medium: rgba(0, 0, 0, 0.05);
     --overlay-dark: rgba(0, 0, 0, 0.5);
     --strikethrough-color: rgba(108, 117, 125, 0.6);
-    --figcaption-color: rgba(108, 117, 125, 0.8);
+    --figcaption-color: var(--text-color);
     --highlight-background: rgba(255, 235, 59, 0.3);
     --table-header-bg: rgba(74, 106, 112, 0.05);
 
@@ -807,7 +807,7 @@ figcaption {
     margin-top: calc(var(--baseline-unit) * 0.125);
 }
 
-@media (max-width: 768px) {
+@media screen and (max-width: 768px) {
     .image-row {
         gap: calc(var(--baseline-unit) * 0.5);
     }
@@ -1295,6 +1295,27 @@ fieldset {
 
     table {
         width: 100%;
+    }
+
+    .image-row {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: flex-start;
+        gap: calc(var(--baseline-unit) * 0.5);
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .image-row .image-figure,
+    .image-figure-inline {
+        flex: 1 1 0;
+        min-width: 0;
+    }
+
+    .image-row img,
+    .image-figure-inline img {
+        width: 100%;
+        max-width: 100%;
     }
 }
 
