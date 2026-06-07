@@ -947,35 +947,34 @@ figcaption {
 
 @media screen and (max-width: 575.98px) {
     .timeline {
-        grid-template-columns: 1fr;
-        row-gap: var(--baseline-unit);
+        grid-template-columns: minmax(4.75rem, 6rem) minmax(0, 1fr);
+        column-gap: 0.75rem;
         margin-left: 0.5rem;
         margin-right: 0.5rem;
     }
 
     .timeline-era-list {
-        flex-direction: row;
-        overflow-x: auto;
-        padding-bottom: 0.25rem;
+        flex-direction: column;
+        overflow-x: visible;
+        padding-bottom: 0;
     }
 
     .timeline-era {
-        flex: 0 0 auto;
-        min-height: 0;
-        min-width: 8rem;
-        justify-content: flex-start;
-        border-left: none;
-        border-top: 3px solid var(--accent-color);
+        min-height: 7rem;
+        min-width: 0;
+        justify-content: center;
+        border-left: 3px solid var(--accent-color);
+        border-top: none;
     }
 
     .timeline-era-range,
     .timeline-era-label {
-        writing-mode: horizontal-tb;
+        writing-mode: vertical-rl;
     }
 
     .timeline-era-range {
-        margin-left: 0;
-        margin-right: 0.5rem;
+        margin-left: 0.35rem;
+        margin-right: 0;
     }
 }
 
