@@ -825,6 +825,7 @@ figcaption {
     display: grid;
     grid-template-columns: minmax(5.5rem, 8rem) minmax(0, 1fr);
     column-gap: clamp(1rem, 3vw, 2rem);
+    row-gap: calc(var(--baseline-unit) * 0.9);
     margin: calc(var(--baseline-unit) * 1.5) clamp(0.5rem, 2vw, 1rem);
     font-family: var(--font-serif);
 }
@@ -833,23 +834,18 @@ figcaption {
     grid-template-columns: minmax(0, 1fr);
 }
 
-.timeline-era-list {
-    display: flex;
-    flex-direction: column;
-    gap: calc(var(--baseline-unit) * 0.5);
-    padding-top: 0.35rem;
-}
-
 .timeline-era {
+    grid-column: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 7rem;
     padding: 0.75rem 0.35rem;
     border-left: 3px solid var(--accent-color);
     background: var(--table-header-bg);
     color: var(--text-color);
     box-sizing: border-box;
+    min-height: 7rem;
+    align-self: stretch;
 }
 
 .timeline-era-range,
@@ -872,31 +868,34 @@ figcaption {
     font-weight: 600;
 }
 
-.timeline-events {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: calc(var(--baseline-unit) * 0.9);
-    padding-left: 1.25rem;
+.timeline-events-line {
+    grid-column: 2;
+    justify-self: start;
+    align-self: stretch;
+    width: 2px;
+    margin-left: 0.35rem;
+    background: color-mix(in srgb, var(--accent-color), transparent 45%);
+    z-index: 0;
 }
 
-.timeline-events::before {
-    content: "";
-    position: absolute;
-    top: 0.35rem;
-    bottom: 0.35rem;
-    left: 0.35rem;
-    width: 2px;
-    background: color-mix(in srgb, var(--accent-color), transparent 45%);
+.timeline-no-eras .timeline-events-line {
+    grid-column: 1;
 }
 
 .timeline-item {
+    grid-column: 2;
     position: relative;
     display: grid;
     grid-template-columns: 1rem minmax(0, 1fr);
     column-gap: 0.75rem;
+    padding-left: 1.25rem;
     page-break-inside: avoid;
     break-inside: avoid;
+    z-index: 1;
+}
+
+.timeline-no-eras .timeline-item {
+    grid-column: 1;
 }
 
 .timeline-marker {
@@ -949,14 +948,13 @@ figcaption {
     .timeline {
         grid-template-columns: minmax(4.75rem, 6rem) minmax(0, 1fr);
         column-gap: 0.75rem;
+        row-gap: calc(var(--baseline-unit) * 0.9);
         margin-left: 0.5rem;
         margin-right: 0.5rem;
     }
 
-    .timeline-era-list {
-        flex-direction: column;
-        overflow-x: visible;
-        padding-bottom: 0;
+    .timeline-no-eras {
+        grid-template-columns: minmax(0, 1fr);
     }
 
     .timeline-era {

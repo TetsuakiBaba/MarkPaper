@@ -297,7 +297,28 @@
       .map((era) => {
         const start = parseTimelineDate(era.start, 'start');
         const end = parseTimelineDate(era.end, 'end');
-        return start && end ? { ...era, start, end } : null;
+        if (!start || !end) {
+          return null;
+        }
+
+        const rangeStartValue = Math.min(start.value, end.value);
+        const rangeEndValue = Math.max(start.value, end.value);
+        const matchingRows = normalizedItems
+          .map((item, index) => (
+            item.date.value >= rangeStartValue && item.date.value <= rangeEndValue
+              ? index + 1
+              : null
+          ))
+          .filter(row => row !== null);
+
+        if (matchingRows.length === 0) {
+          return null;
+        }
+
+        const rowStart = Math.min(...matchingRows);
+        const rowEnd = Math.max(...matchingRows) + 1;
+
+        return { ...era, start, end, rowStart, rowEnd };
       })
       .filter(Boolean)
       .sort((a, b) => options.order === 'desc'
@@ -309,22 +330,23 @@
       : `timeline timeline-order-${options.order} timeline-no-eras`;
     let timelineHtml = `<div class="${timelineClasses}">\n`;
 
+    if (normalizedItems.length > 0) {
+      timelineHtml += `<div class="timeline-events-line" style="grid-row: 1 / ${normalizedItems.length + 1};" aria-hidden="true"></div>\n`;
+    }
+
     if (normalizedEras.length > 0) {
-      timelineHtml += '<div class="timeline-era-list" aria-label="Timeline eras">\n';
       normalizedEras.forEach((era) => {
-        timelineHtml += '<div class="timeline-era">';
+        timelineHtml += `<div class="timeline-era" style="grid-row: ${era.rowStart} / ${era.rowEnd};">`;
         timelineHtml += `<div class="timeline-era-range">${_escapeHTML(era.start.display)} - ${_escapeHTML(era.end.display)}</div>`;
         if (era.label) {
           timelineHtml += `<div class="timeline-era-label">${escapeInline(era.label, currentSectionFootnotes, footnotes)}</div>`;
         }
         timelineHtml += '</div>\n';
       });
-      timelineHtml += '</div>\n';
     }
 
-    timelineHtml += '<div class="timeline-events">\n';
-    normalizedItems.forEach((item) => {
-      timelineHtml += '<article class="timeline-item">\n';
+    normalizedItems.forEach((item, index) => {
+      timelineHtml += `<article class="timeline-item" style="grid-row: ${index + 1};">\n`;
       timelineHtml += '<div class="timeline-marker" aria-hidden="true"></div>\n';
       timelineHtml += '<div class="timeline-item-body">\n';
       timelineHtml += `<time class="timeline-date" datetime="${_escapeHTML(item.date.datetime)}">${_escapeHTML(item.date.display)}</time>\n`;
@@ -337,7 +359,6 @@
       timelineHtml += '</div>\n';
       timelineHtml += '</article>\n';
     });
-    timelineHtml += '</div>\n';
     timelineHtml += '</div>\n';
 
     return timelineHtml;
