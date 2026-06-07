@@ -145,6 +145,204 @@
     return `<div class="image-row">\n${figures}\n</div>\n`;
   }
 
+  function parseTimelineAttributes(attrs = '') {
+    const orderMatch = attrs.match(/\border\s*=\s*"?([a-z]+)"?/i);
+    const orderValue = orderMatch ? orderMatch[1].toLowerCase() : 'asc';
+    const descValues = ['desc', 'descending', 'newest', 'latest', 'reverse'];
+
+    return {
+      order: descValues.includes(orderValue) ? 'desc' : 'asc'
+    };
+  }
+
+  function parseTimelineDate(value = '', boundary = 'start') {
+    const raw = String(value).trim();
+    const compact = raw.replace(/[./\s]/g, '');
+
+    if (!/^\d{4}(\d{2})?(\d{2})?$/.test(compact)) {
+      return null;
+    }
+
+    const year = Number(compact.slice(0, 4));
+    const hasMonth = compact.length >= 6;
+    const hasDay = compact.length >= 8;
+    const month = hasMonth ? Number(compact.slice(4, 6)) : (boundary === 'end' ? 12 : 1);
+    const day = hasDay ? Number(compact.slice(6, 8)) : (boundary === 'end' ? 31 : 1);
+
+    if (month < 1 || month > 12 || day < 1 || day > 31) {
+      return null;
+    }
+
+    const displayParts = [String(year)];
+    if (hasMonth) displayParts.push(String(month).padStart(2, '0'));
+    if (hasDay) displayParts.push(String(day).padStart(2, '0'));
+
+    return {
+      raw,
+      value: year * 10000 + month * 100 + day,
+      display: displayParts.join('.'),
+      datetime: compact
+    };
+  }
+
+  function parseTimelineImage(value = '') {
+    const raw = value.trim();
+    if (!raw) {
+      return null;
+    }
+
+    const image = parseImageMarkdown(raw);
+    if (image) {
+      return image;
+    }
+
+    return {
+      alt: '',
+      src: raw,
+      attrs: ''
+    };
+  }
+
+  function parseTimelineEraValue(value = '') {
+    const parts = value.split('|');
+    const rangeText = (parts.shift() || '').trim();
+    const label = parts.join('|').trim();
+    const rangeMatch = rangeText.match(/^(.+?)\s*(?:\.\.|-|~|to)\s*(.+)$/i);
+
+    if (!rangeMatch) {
+      return {
+        start: '',
+        end: '',
+        label: value.trim()
+      };
+    }
+
+    return {
+      start: rangeMatch[1].trim(),
+      end: rangeMatch[2].trim(),
+      label
+    };
+  }
+
+  function renderTimelineBlock(blockLines, attrs = '', currentSectionFootnotes = [], footnotes = {}) {
+    const options = parseTimelineAttributes(attrs);
+    const items = [];
+    const eras = [];
+    let currentItem = null;
+    let currentEra = null;
+
+    const ensureItem = () => {
+      if (!currentItem) {
+        currentItem = { date: '', description: '', image: null };
+        items.push(currentItem);
+      }
+      currentEra = null;
+      return currentItem;
+    };
+
+    blockLines.forEach((rawLine) => {
+      const line = rawLine.trim();
+      if (!line) {
+        return;
+      }
+
+      let match;
+      if ((match = line.match(/^item\s*:\s*(.*)$/i))) {
+        currentItem = { date: match[1].trim(), description: '', image: null };
+        items.push(currentItem);
+        currentEra = null;
+      } else if ((match = line.match(/^date\s*:\s*(.*)$/i))) {
+        ensureItem().date = match[1].trim();
+      } else if ((match = line.match(/^description\s*:\s*(.*)$/i))) {
+        if (currentEra && !currentItem) {
+          currentEra.label = match[1].trim();
+        } else {
+          ensureItem().description = match[1].trim();
+        }
+      } else if ((match = line.match(/^image\s*:\s*(.*)$/i))) {
+        ensureItem().image = parseTimelineImage(match[1]);
+      } else if ((match = line.match(/^era\s*:\s*(.*)$/i))) {
+        const eraValue = parseTimelineEraValue(match[1]);
+        currentEra = {
+          start: eraValue.start,
+          end: eraValue.end,
+          label: eraValue.label
+        };
+        eras.push(currentEra);
+        currentItem = null;
+      } else if ((match = line.match(/^start\s*:\s*(.*)$/i))) {
+        if (currentEra) currentEra.start = match[1].trim();
+      } else if ((match = line.match(/^end\s*:\s*(.*)$/i))) {
+        if (currentEra) currentEra.end = match[1].trim();
+      } else if (currentItem) {
+        currentItem.description = currentItem.description
+          ? `${currentItem.description} ${line}`
+          : line;
+      } else if (currentEra) {
+        currentEra.label = currentEra.label ? `${currentEra.label} ${line}` : line;
+      }
+    });
+
+    const normalizedItems = items
+      .map((item) => {
+        const date = parseTimelineDate(item.date, 'start');
+        return date ? { ...item, date } : null;
+      })
+      .filter(Boolean)
+      .sort((a, b) => options.order === 'desc'
+        ? b.date.value - a.date.value
+        : a.date.value - b.date.value);
+
+    const normalizedEras = eras
+      .map((era) => {
+        const start = parseTimelineDate(era.start, 'start');
+        const end = parseTimelineDate(era.end, 'end');
+        return start && end ? { ...era, start, end } : null;
+      })
+      .filter(Boolean)
+      .sort((a, b) => options.order === 'desc'
+        ? b.start.value - a.start.value
+        : a.start.value - b.start.value);
+
+    const timelineClasses = normalizedEras.length > 0
+      ? `timeline timeline-order-${options.order} timeline-has-eras`
+      : `timeline timeline-order-${options.order} timeline-no-eras`;
+    let timelineHtml = `<div class="${timelineClasses}">\n`;
+
+    if (normalizedEras.length > 0) {
+      timelineHtml += '<div class="timeline-era-list" aria-label="Timeline eras">\n';
+      normalizedEras.forEach((era) => {
+        timelineHtml += '<div class="timeline-era">';
+        timelineHtml += `<div class="timeline-era-range">${_escapeHTML(era.start.display)} - ${_escapeHTML(era.end.display)}</div>`;
+        if (era.label) {
+          timelineHtml += `<div class="timeline-era-label">${escapeInline(era.label, currentSectionFootnotes, footnotes)}</div>`;
+        }
+        timelineHtml += '</div>\n';
+      });
+      timelineHtml += '</div>\n';
+    }
+
+    timelineHtml += '<div class="timeline-events">\n';
+    normalizedItems.forEach((item) => {
+      timelineHtml += '<article class="timeline-item">\n';
+      timelineHtml += '<div class="timeline-marker" aria-hidden="true"></div>\n';
+      timelineHtml += '<div class="timeline-item-body">\n';
+      timelineHtml += `<time class="timeline-date" datetime="${_escapeHTML(item.date.datetime)}">${_escapeHTML(item.date.display)}</time>\n`;
+      if (item.description) {
+        timelineHtml += `<p class="timeline-description">${escapeInline(item.description, currentSectionFootnotes, footnotes)}</p>\n`;
+      }
+      if (item.image && item.image.src) {
+        timelineHtml += `<img class="timeline-image" src="${_escapeHTML(item.image.src)}" alt="${_escapeHTML(item.image.alt || item.description || '')}" loading="lazy" />\n`;
+      }
+      timelineHtml += '</div>\n';
+      timelineHtml += '</article>\n';
+    });
+    timelineHtml += '</div>\n';
+    timelineHtml += '</div>\n';
+
+    return timelineHtml;
+  }
+
   // --- 極小 Markdown → HTML 変換関数 ----------------------------
   function mdToHTML(md) {
     // 変換開始時に図番号をリセット
@@ -199,6 +397,9 @@
     let codeBlockFence = ''; // フェンスの種類を記録（```または````）
     let inImageRow = false;
     let imageRowItems = [];
+    let inTimeline = false;
+    let timelineAttrs = '';
+    let timelineLines = [];
 
     // 段落処理用のバッファ
     let paragraphBuffer = [];
@@ -475,6 +676,15 @@
       }
     };
 
+    const closeTimeline = () => {
+      if (inTimeline) {
+        html += renderTimelineBlock(timelineLines, timelineAttrs, currentSectionFootnotes, footnotes);
+        inTimeline = false;
+        timelineAttrs = '';
+        timelineLines = [];
+      }
+    };
+
     // 脚注定義を収集する前処理
     lines.forEach((line) => {
       const footnoteDefMatch = line.match(/^\[\^([^\]]+)\]:\s*(.+)$/);
@@ -535,6 +745,8 @@
       if (line.trim() === '' || line === '') {
         if (inCodeBlock) {
           codeContent.push('');
+        } else if (inTimeline) {
+          timelineLines.push('');
         } else if (inImageRow) {
           // 画像行ブロックでは空行を許容する
         } else if (inAlert) {
@@ -549,6 +761,16 @@
           closeBlockquote(); // 空行でblockquoteも閉じる
           closeTable(); // 空行でテーブルも閉じる
         }
+        return;
+      }
+
+      if (inTimeline) {
+        if (line.match(/^:::\s*$/)) {
+          closeTimeline();
+          return;
+        }
+
+        timelineLines.push(line);
         return;
       }
 
@@ -590,6 +812,7 @@
           closeList();
           closeAlert();
           closeBlockquote();
+          closeTimeline();
           inCodeBlock = true;
           codeBlockFence = currentFence;
           const languageMatch = line.match(/^```+(\w+)?/);
@@ -612,8 +835,24 @@
         closeTable();
         closeCodeBlock();
         closeImageRow();
+        closeTimeline();
         inImageRow = true;
         imageRowItems = [];
+        return;
+      }
+
+      const timelineMatch = line.match(/^:::timeline\b(.*)$/i);
+      if (timelineMatch) {
+        flushParagraphBuffer();
+        closeList();
+        closeAlert();
+        closeBlockquote();
+        closeTable();
+        closeCodeBlock();
+        closeImageRow();
+        inTimeline = true;
+        timelineAttrs = timelineMatch[1].trim();
+        timelineLines = [];
         return;
       }
 
@@ -897,6 +1136,7 @@
     closeTable();
     closeCodeBlock();
     closeImageRow();
+    closeTimeline();
     // 最後のセクションの脚注を追加
     addFootnotesToSection();
 

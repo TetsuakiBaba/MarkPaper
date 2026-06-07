@@ -819,6 +819,167 @@ figcaption {
 }
 
 /* ============================================
+   タイムライン
+   ============================================ */
+.timeline {
+    display: grid;
+    grid-template-columns: minmax(5.5rem, 8rem) minmax(0, 1fr);
+    column-gap: clamp(1rem, 3vw, 2rem);
+    margin: calc(var(--baseline-unit) * 1.5) clamp(0.5rem, 2vw, 1rem);
+    font-family: var(--font-serif);
+}
+
+.timeline-no-eras {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.timeline-era-list {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--baseline-unit) * 0.5);
+    padding-top: 0.35rem;
+}
+
+.timeline-era {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 7rem;
+    padding: 0.75rem 0.35rem;
+    border-left: 3px solid var(--accent-color);
+    background: var(--table-header-bg);
+    color: var(--text-color);
+    box-sizing: border-box;
+}
+
+.timeline-era-range,
+.timeline-era-label {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    line-height: 1.4;
+}
+
+.timeline-era-range {
+    margin-left: 0.35rem;
+    font-family: var(--font-sans-serif);
+    font-size: 0.72rem;
+    color: var(--secondary-text-color);
+    white-space: nowrap;
+}
+
+.timeline-era-label {
+    font-size: 0.88rem;
+    font-weight: 600;
+}
+
+.timeline-events {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--baseline-unit) * 0.9);
+    padding-left: 1.25rem;
+}
+
+.timeline-events::before {
+    content: "";
+    position: absolute;
+    top: 0.35rem;
+    bottom: 0.35rem;
+    left: 0.35rem;
+    width: 2px;
+    background: color-mix(in srgb, var(--accent-color), transparent 45%);
+}
+
+.timeline-item {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1rem minmax(0, 1fr);
+    column-gap: 0.75rem;
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+.timeline-marker {
+    position: relative;
+    z-index: 1;
+    width: 0.75rem;
+    height: 0.75rem;
+    margin-top: 0.42rem;
+    border: 2px solid var(--accent-color);
+    border-radius: 50%;
+    background: var(--background-color);
+    box-shadow: 0 0 0 4px var(--background-color);
+}
+
+.timeline-item-body {
+    min-width: 0;
+    padding-bottom: calc(var(--baseline-unit) * 0.25);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.timeline-date {
+    display: inline-block;
+    margin-bottom: 0.2rem;
+    font-family: var(--font-sans-serif);
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--accent-color);
+    font-variant-numeric: tabular-nums;
+}
+
+.timeline-description {
+    margin: 0 0 0.45rem 0;
+    text-align: left;
+    line-height: 1.65;
+    font-size: 0.95rem;
+}
+
+.timeline-image {
+    display: block;
+    width: 4.25rem;
+    height: 4.25rem;
+    margin: 0.2rem 0 0;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 8px var(--shadow-light);
+}
+
+@media screen and (max-width: 575.98px) {
+    .timeline {
+        grid-template-columns: 1fr;
+        row-gap: var(--baseline-unit);
+        margin-left: 0.5rem;
+        margin-right: 0.5rem;
+    }
+
+    .timeline-era-list {
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 0.25rem;
+    }
+
+    .timeline-era {
+        flex: 0 0 auto;
+        min-height: 0;
+        min-width: 8rem;
+        justify-content: flex-start;
+        border-left: none;
+        border-top: 3px solid var(--accent-color);
+    }
+
+    .timeline-era-range,
+    .timeline-era-label {
+        writing-mode: horizontal-tb;
+    }
+
+    .timeline-era-range {
+        margin-left: 0;
+        margin-right: 0.5rem;
+    }
+}
+
+/* ============================================
    コード設定（等幅フォントの美的調整）
    ============================================ */
 pre {

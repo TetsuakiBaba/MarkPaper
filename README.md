@@ -239,6 +239,47 @@ https://example.com
 - Responsive design (auto-resize according to screen width)
 - Center-aligned display with rounded corners and borders
 
+#### Timeline
+```markdown
+:::timeline order=asc
+era: 2024..2025 | Prototype period
+era: 2026..202606 | Public release period
+
+item: 2024
+description: The initial idea was sketched.
+image: teaser.png
+
+item: 202606
+description: A preview version was prepared.
+image: ![Preview image](teaser.png)
+
+item: 20260606
+description: The feature was documented.
+:::
+```
+
+**Features:**
+- Displays events on a vertical timeline
+- Sort order can be set with `order=asc` or `order=desc`
+- Dates support `YYYY`, `YYYYMM`, and `YYYYMMDD` formats
+- Each item can include a date, description, and a small circular image
+- `era` entries show named periods on the left side of the timeline
+
+**Alternative item format:**
+```markdown
+:::timeline order=desc
+item:
+date: 20260606
+description: A detailed event description.
+image: https://example.com/image.jpg
+
+era:
+start: 2024
+end: 2025
+description: Preparation period
+:::
+```
+
 **Example:**
 ```markdown
 ![Sample image caption](https://tetsuakibaba.jp/assets/images/research/2021rc.png)
