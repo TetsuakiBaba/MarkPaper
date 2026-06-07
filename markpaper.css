@@ -839,7 +839,7 @@ figcaption {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0.75rem 0.35rem;
+    padding: 0.75rem 0.2rem;
     border-left: 3px solid var(--accent-color);
     background: var(--table-header-bg);
     color: var(--text-color);
@@ -856,7 +856,7 @@ figcaption {
 }
 
 .timeline-era-range {
-    margin-left: 0.35rem;
+    margin-left: 0.2rem;
     font-family: var(--font-sans-serif);
     font-size: 0.72rem;
     color: var(--secondary-text-color);
@@ -971,7 +971,7 @@ figcaption {
     }
 
     .timeline-era-range {
-        margin-left: 0.35rem;
+        margin-left: 0.2rem;
         margin-right: 0;
     }
 }

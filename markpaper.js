@@ -325,10 +325,30 @@
         ? b.start.value - a.start.value
         : a.start.value - b.start.value);
 
+    const eraLaneEnds = [];
+    normalizedEras
+      .slice()
+      .sort((a, b) => {
+        const rowComparison = a.rowStart - b.rowStart;
+        if (rowComparison !== 0) return rowComparison;
+        return a.rowEnd - b.rowEnd;
+      })
+      .forEach((era) => {
+        let lane = eraLaneEnds.findIndex(rowEnd => rowEnd <= era.rowStart);
+        if (lane === -1) {
+          lane = eraLaneEnds.length;
+          eraLaneEnds.push(0);
+        }
+
+        era.lane = lane;
+        eraLaneEnds[lane] = era.rowEnd;
+      });
+
+    const eraLaneCount = Math.max(1, eraLaneEnds.length);
     const timelineClasses = normalizedEras.length > 0
       ? `timeline timeline-order-${options.order} timeline-has-eras`
       : `timeline timeline-order-${options.order} timeline-no-eras`;
-    let timelineHtml = `<div class="${timelineClasses}">\n`;
+    let timelineHtml = `<div class="${timelineClasses}" style="--timeline-era-lanes: ${eraLaneCount};">\n`;
 
     if (normalizedItems.length > 0) {
       timelineHtml += `<div class="timeline-events-line" style="grid-row: 1 / ${normalizedItems.length + 1};" aria-hidden="true"></div>\n`;
@@ -336,7 +356,9 @@
 
     if (normalizedEras.length > 0) {
       normalizedEras.forEach((era) => {
-        timelineHtml += `<div class="timeline-era" style="grid-row: ${era.rowStart} / ${era.rowEnd};">`;
+        const laneWidth = 100 / eraLaneCount;
+        const laneOffset = laneWidth * era.lane;
+        timelineHtml += `<div class="timeline-era" style="grid-row: ${era.rowStart} / ${era.rowEnd}; width: ${laneWidth}%; margin-left: ${laneOffset}%;">`;
         timelineHtml += `<div class="timeline-era-range">${_escapeHTML(era.start.display)} - ${_escapeHTML(era.end.display)}</div>`;
         if (era.label) {
           timelineHtml += `<div class="timeline-era-label">${escapeInline(era.label, currentSectionFootnotes, footnotes)}</div>`;
