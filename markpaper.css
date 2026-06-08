@@ -933,15 +933,80 @@ figcaption {
     font-size: 0.95rem;
 }
 
+.timeline-images {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    align-items: center;
+    margin-top: 0.2rem;
+}
+
 .timeline-image {
     display: block;
     width: 4.25rem;
     height: 4.25rem;
-    margin: 0.2rem 0 0;
+    margin: 0;
     border-radius: 50%;
     object-fit: cover;
     border: 1px solid var(--border-color);
     box-shadow: 0 2px 8px var(--shadow-light);
+    cursor: zoom-in;
+}
+
+.timeline-image:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 3px;
+}
+
+.markpaper-image-modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background: rgba(0, 0, 0, 0.82);
+    z-index: 1000;
+    box-sizing: border-box;
+}
+
+.markpaper-image-modal.open {
+    display: flex;
+}
+
+.markpaper-image-modal-img {
+    display: block;
+    max-width: min(92vw, 1200px);
+    max-height: 88vh;
+    width: auto;
+    height: auto;
+    margin: 0;
+    border-radius: 4px;
+    object-fit: contain;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+    background: var(--background-color);
+}
+
+.markpaper-image-modal-close {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    background: rgba(0, 0, 0, 0.35);
+    color: #fff;
+    font-size: 1.8rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.markpaper-image-modal-close:hover,
+.markpaper-image-modal-close:focus-visible {
+    background: rgba(255, 255, 255, 0.18);
+    color: #fff;
 }
 
 @media screen and (max-width: 575.98px) {

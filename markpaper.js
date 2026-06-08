@@ -233,7 +233,7 @@
 
     const ensureItem = () => {
       if (!currentItem) {
-        currentItem = { date: '', description: '', image: null };
+        currentItem = { date: '', description: '', images: [] };
         items.push(currentItem);
       }
       currentEra = null;
@@ -248,7 +248,7 @@
 
       let match;
       if ((match = line.match(/^item\s*:\s*(.*)$/i))) {
-        currentItem = { date: match[1].trim(), description: '', image: null };
+        currentItem = { date: match[1].trim(), description: '', images: [] };
         items.push(currentItem);
         currentEra = null;
       } else if ((match = line.match(/^date\s*:\s*(.*)$/i))) {
@@ -260,7 +260,10 @@
           ensureItem().description = match[1].trim();
         }
       } else if ((match = line.match(/^image\s*:\s*(.*)$/i))) {
-        ensureItem().image = parseTimelineImage(match[1]);
+        const image = parseTimelineImage(match[1]);
+        if (image) {
+          ensureItem().images.push(image);
+        }
       } else if ((match = line.match(/^era\s*:\s*(.*)$/i))) {
         const eraValue = parseTimelineEraValue(match[1]);
         currentEra = {
@@ -375,8 +378,14 @@
       if (item.description) {
         timelineHtml += `<p class="timeline-description">${escapeInline(item.description, currentSectionFootnotes, footnotes)}</p>\n`;
       }
-      if (item.image && item.image.src) {
-        timelineHtml += `<img class="timeline-image" src="${_escapeHTML(item.image.src)}" alt="${_escapeHTML(item.image.alt || item.description || '')}" loading="lazy" />\n`;
+      if (item.images && item.images.length > 0) {
+        timelineHtml += '<div class="timeline-images">\n';
+        item.images.forEach((image) => {
+          if (image && image.src) {
+            timelineHtml += `<img class="timeline-image" src="${_escapeHTML(image.src)}" alt="${_escapeHTML(image.alt || item.description || '')}" loading="lazy" tabindex="0" role="button" />\n`;
+          }
+        });
+        timelineHtml += '</div>\n';
       }
       timelineHtml += '</div>\n';
       timelineHtml += '</article>\n';
@@ -1451,6 +1460,88 @@
     // No-op: cover and summary layout disabled
   }
 
+  function ensureImageModal() {
+    let modal = document.getElementById('markpaper-image-modal');
+    if (modal) {
+      return modal;
+    }
+
+    modal = document.createElement('div');
+    modal.id = 'markpaper-image-modal';
+    modal.className = 'markpaper-image-modal';
+    modal.setAttribute('aria-hidden', 'true');
+    modal.innerHTML = `
+      <button class="markpaper-image-modal-close" type="button" aria-label="Close image preview">&times;</button>
+      <img class="markpaper-image-modal-img" src="" alt="">
+    `;
+    document.body.appendChild(modal);
+
+    const closeModal = () => {
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+      const modalImage = modal.querySelector('.markpaper-image-modal-img');
+      if (modalImage) {
+        modalImage.removeAttribute('src');
+        modalImage.alt = '';
+      }
+    };
+
+    modal.addEventListener('click', (event) => {
+      if (event.target === modal || event.target.closest('.markpaper-image-modal-close')) {
+        closeModal();
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && modal.classList.contains('open')) {
+        closeModal();
+      }
+    });
+
+    return modal;
+  }
+
+  function openImageModal(image) {
+    if (!image || !image.src) {
+      return;
+    }
+
+    const modal = ensureImageModal();
+    const modalImage = modal.querySelector('.markpaper-image-modal-img');
+    if (!modalImage) {
+      return;
+    }
+
+    modalImage.src = image.src;
+    modalImage.alt = image.alt || '';
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+  }
+
+  function addImageModalFunctionality(root) {
+    if (typeof document === 'undefined') {
+      return;
+    }
+
+    const targetRoot = root || document;
+    targetRoot.querySelectorAll('.timeline-image').forEach((image) => {
+      if (image.dataset.markpaperModalBound === 'true') {
+        return;
+      }
+
+      image.dataset.markpaperModalBound = 'true';
+      image.addEventListener('click', () => {
+        openImageModal(image);
+      });
+      image.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          openImageModal(image);
+        }
+      });
+    });
+  }
+
   // --- 目次生成 ---------------------------------
   function generateTableOfContents() {
     const tocList = document.getElementById('table-of-contents');
@@ -1638,6 +1729,7 @@
       previewContent.innerHTML = html;
       // コピーボタン機能を適用
       addCopyButtonFunctionality();
+      addImageModalFunctionality(previewContent);
     };
 
     // 入力イベントでリアルタイム更新
@@ -1759,6 +1851,7 @@
 
         // コードブロックにコピーボタン機能を追加
         addCopyButtonFunctionality();
+        addImageModalFunctionality(document.getElementById(targetId));
       })
       .catch((err) => {
         console.error('Error loading file:', err); // デバッグ用
@@ -1832,6 +1925,7 @@
     renderMarkdownFile: renderMarkdownFile,
     initEditorMode: initEditorMode,
     addCopyButtonFunctionality: addCopyButtonFunctionality,
+    addImageModalFunctionality: addImageModalFunctionality,
     createDynamicElements: createDynamicElements,
     generateTableOfContents: generateTableOfContents,
     initHamburgerMenu: initHamburgerMenu,
